@@ -6,21 +6,21 @@ import { CATALOG, CATALOG_TABS, MODELS, FABRICS, recommendSize, waLink, type Cat
 
 export function TopBar() {
   return (
-    <div className="sticky top-0 z-40 bg-primary text-primary-foreground text-[11px] sm:text-sm font-semibold py-2 px-3 text-center">
-      <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-primary-foreground animate-pulse" />⚡ Produção Expressa 24h Ativa <span className="hidden sm:inline">| Atendimento Imediato para ABC Paulista, SP e Envio Nacional</span></span>
+    <div className="sticky top-0 z-40 bg-primary text-primary-foreground text-[11px] sm:text-sm font-semibold py-2 px-3 text-center shadow-md">
+      <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-primary-foreground animate-pulse shadow-sm" />⚡ Produção Expressa 24h Ativa <span className="hidden sm:inline">| Atendimento Imediato para ABC Paulista, SP e Envio Nacional</span></span>
     </div>
   );
 }
 
 export function Header() {
   return (
-    <header className="border-b border-border bg-background/80 backdrop-blur">
+    <header className="border-b border-border bg-background/90 backdrop-blur sticky top-[36px] sm:top-[40px] z-30 shadow-sm transition-all">
       <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
-        <a href="#topo" className="font-display text-2xl font-extrabold uppercase tracking-wide">Inkiri<span className="text-primary">DTF</span></a>
-        <nav className="hidden md:flex gap-6 text-sm text-muted-foreground">
-          {[["#como", "Como funciona"], ["#catalogo", "Catálogo"], ["#tecnologia", "DTF x Bordado"], ["#medidas", "Medidas"], ["#faq", "FAQ"]].map(([h, l]) => <a key={h} href={h} className="hover:text-foreground">{l}</a>)}
+        <a href="#topo" className="font-display text-2xl font-extrabold uppercase tracking-wide cursor-pointer hover:scale-105 transition-transform">Inkiri<span className="text-primary">DTF</span></a>
+        <nav className="hidden md:flex gap-6 text-sm font-semibold text-muted-foreground">
+          {[["#como", "Como funciona"], ["#catalogo", "Catálogo"], ["#tecnologia", "DTF x Bordado"], ["#medidas", "Medidas"], ["#faq", "FAQ"]].map(([h, l]) => <a key={h} href={h} className="cursor-pointer transition-colors duration-300 hover:text-primary">{l}</a>)}
         </nav>
-        <a href="#simulador" className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-bold">Simular</a>
+        <a href="#simulador" className="rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-bold shadow-md cursor-pointer transition-all duration-300 hover:scale-105 hover:brightness-110">Simular</a>
       </div>
     </header>
   );
@@ -31,25 +31,25 @@ export function Hero() {
     <section id="topo" data-wa="Olá! Preciso de uniformes com urgência. Podem me ajudar?" className="bg-hero relative overflow-hidden">
       <div className="absolute inset-0 grid-lines" />
       <div className="relative mx-auto max-w-7xl px-4 py-16 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 text-primary px-3 py-1 text-xs font-semibold uppercase tracking-wider">ABC Paulista · Envio para todo o Brasil</span>
+        <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 text-primary px-3 py-1.5 text-xs font-bold uppercase tracking-wider shadow-sm">ABC Paulista · Envio para todo o Brasil</span>
           <h1 className="mt-5 text-5xl sm:text-6xl lg:text-7xl font-extrabold uppercase leading-[0.95]">Uniformes prontos em <span className="text-primary">24 horas.</span><br />Sem atrasos, sem dor de cabeça.</h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-xl">Padronização imediata para empresas e eventos de última hora: estoque inteligente a pronta entrega + personalização in-house com DTF Digital e Bordado Industrial.</p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
-            <a href="#simulador" className="rounded-xl bg-primary text-primary-foreground px-7 py-4 font-bold text-center shadow-glow hover:brightness-110">Simular Meu Uniforme Agora</a>
-            <a href={waLink("Olá, equipe Inkiri! Quero um orçamento rápido de uniformes.")} target="_blank" rel="noreferrer" className="rounded-xl border border-border bg-card px-7 py-4 font-bold text-center flex items-center justify-center gap-2 hover:bg-accent"><MessageCircle className="h-5 w-5 text-primary" />Orçamento Rápido no WhatsApp</a>
+          <p className="mt-6 text-lg font-medium text-muted-foreground max-w-xl">Padronização imediata para empresas e eventos de última hora: estoque inteligente a pronta entrega + personalização in-house com DTF Digital e Bordado Industrial.</p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+            <a href="#simulador" className="rounded-xl bg-primary text-primary-foreground px-8 py-4 font-bold text-center shadow-glow cursor-pointer transition-all duration-300 hover:scale-105 hover:brightness-110 text-lg">Simular Meu Uniforme</a>
+            <a href={waLink("Olá, equipe Inkiri! Quero um orçamento rápido de uniformes.")} target="_blank" rel="noreferrer" className="rounded-xl border border-border bg-card px-8 py-4 font-bold text-center flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-primary/5 hover:border-primary/50 hover:text-primary shadow-sm text-lg"><MessageCircle className="h-5 w-5" />Orçamento WhatsApp</a>
           </div>
         </div>
-        <div className="relative h-[340px] sm:h-[440px]">
-          <Garment shape="polo" body="#1f2a44" collar="#ffffff" className="absolute left-0 top-6 w-[55%] drop-shadow-2xl -rotate-6" />
-          <Garment shape="hoodie" body="#3b3f45" collar="#111214" className="absolute right-0 top-0 w-[52%] drop-shadow-2xl rotate-6" />
-          <Garment shape="tshirt" body="#15803d" className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[50%] drop-shadow-2xl" />
+        <div className="relative h-[340px] sm:h-[440px] animate-in fade-in zoom-in duration-1000">
+          <Garment shape="polo" body="#ffffff" collar="#1d4ed8" className="absolute left-0 top-6 w-[55%] drop-shadow-2xl -rotate-6 transition-transform hover:rotate-0 duration-500" />
+          <Garment shape="hoodie" body="#111214" collar="#111214" className="absolute right-0 top-0 w-[52%] drop-shadow-2xl rotate-6 transition-transform hover:rotate-0 duration-500" />
+          <Garment shape="tshirt" body="#15803d" className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[50%] drop-shadow-2xl transition-transform hover:-translate-y-4 duration-500" />
         </div>
       </div>
-      <div className="relative mx-auto max-w-7xl px-4 pb-12 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="relative mx-auto max-w-7xl px-4 pb-12 grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-12 duration-700 delay-300">
         {[[Zap, "Produção Recorde 24h"], [FileCheck2, "Emissão de Nota Fiscal (CNPJ)"], [Palette, "Sem Limite de Cores (DTF)"], [TrendingDown, "Desconto Progressivo por Volume"]].map(([I, l]) => {
           const Icon = I as typeof Zap;
-          return <div key={l as string} className="rounded-xl border border-border bg-card/70 p-4 flex items-center gap-3"><Icon className="h-6 w-6 text-primary shrink-0" /><span className="text-sm font-semibold">{l as string}</span></div>;
+          return <div key={l as string} className="rounded-xl border border-border bg-card/70 backdrop-blur p-5 flex items-center gap-3 shadow-sm hover:border-primary/50 transition-colors cursor-default"><Icon className="h-7 w-7 text-primary shrink-0" /><span className="text-sm font-bold">{l as string}</span></div>;
         })}
       </div>
     </section>
@@ -64,16 +64,16 @@ export function Timeline() {
     [Truck, "Logística Prioritária", "Retirada ou envio expresso em até 24h."],
   ] as const;
   return (
-    <section id="como" data-wa="Quero entender como funciona a produção em 24h" className="py-16 md:py-24 bg-ice text-ice-foreground">
+    <section id="como" data-wa="Quero entender como funciona a produção em 24h" className="py-16 md:py-24 bg-card text-foreground border-y border-border">
       <div className="mx-auto max-w-7xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center">Como entregamos em 24 horas</h2>
-        <div className="mt-12 grid md:grid-cols-4 gap-6 relative">
-          <div className="hidden md:block absolute top-8 left-[12%] right-[12%] h-0.5 bg-ice-foreground/15" />
+        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center text-primary font-display">Como entregamos em 24 horas</h2>
+        <div className="mt-16 grid md:grid-cols-4 gap-8 relative">
+          <div className="hidden md:block absolute top-8 left-[12%] right-[12%] h-0.5 bg-primary/20" />
           {steps.map(([Icon, t, d], i) => (
-            <div key={t} className="relative text-center">
-              <div className="mx-auto h-16 w-16 rounded-2xl bg-ice-foreground text-primary flex items-center justify-center relative"><Icon className="h-7 w-7" /><span className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">{i + 1}</span></div>
-              <h3 className="mt-4 text-2xl font-bold uppercase">{t}</h3>
-              <p className="mt-1 text-sm opacity-70">{d}</p>
+            <div key={t} className="relative text-center group">
+              <div className="mx-auto h-16 w-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center relative shadow-lg group-hover:scale-110 transition-transform duration-300"><Icon className="h-8 w-8" /><span className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-foreground text-background text-sm font-bold flex items-center justify-center border-2 border-card">{i + 1}</span></div>
+              <h3 className="mt-6 text-xl font-bold uppercase text-foreground group-hover:text-primary transition-colors">{t}</h3>
+              <p className="mt-2 text-sm text-muted-foreground font-medium">{d}</p>
             </div>
           ))}
         </div>
@@ -88,24 +88,24 @@ export function Catalog({ onSimulate }: { onSimulate: (id: string) => void }) {
   return (
     <section id="catalogo" data-wa="Quero saber sobre o estoque a pronta-entrega" className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4">
-        <span className="text-primary font-semibold uppercase tracking-widest text-xs">Estoque a pronta-entrega</span>
-        <h2 className="text-4xl md:text-6xl font-bold uppercase">Campeões de venda</h2>
-        <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
+        <span className="text-primary font-bold uppercase tracking-widest text-xs">Estoque a pronta-entrega</span>
+        <h2 className="text-4xl md:text-6xl font-bold uppercase font-display mt-2">Campeões de venda</h2>
+        <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
           {CATALOG_TABS.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold border ${tab === t.id ? "bg-primary text-primary-foreground border-primary" : "border-border bg-card hover:bg-accent"}`}>{t.label}</button>
+            <button key={t.id} onClick={() => setTab(t.id)} className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold border cursor-pointer transition-all duration-300 hover:scale-105 ${tab === t.id ? "bg-primary text-primary-foreground border-primary shadow-glow" : "border-border bg-card hover:bg-primary/10 hover:text-primary"}`}>{t.label}</button>
           ))}
         </div>
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {items.map((c) => {
             const m = MODELS.find((x) => x.id === c.id)!;
             return (
-              <article key={c.id} className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
-                <div className="bg-stage aspect-square p-6"><Garment shape={m.shape} body={c.color} collar={c.color === "#ffffff" ? "#1f2a44" : "#ffffff"} className="h-full w-full" /></div>
-                <div className="p-4 flex flex-col flex-1">
-                  <h3 className="text-xl font-bold uppercase leading-tight">{m.name}</h3>
-                  <p className="text-xs text-primary font-semibold mt-1">{FABRICS[m.fabric].name}</p>
-                  <p className="text-sm text-muted-foreground mt-2 flex-1">{c.spec}</p>
-                  <button onClick={() => onSimulate(c.id)} className="mt-4 rounded-lg bg-primary text-primary-foreground py-2.5 text-sm font-bold hover:brightness-110">Simular Minha Logo Nesta Peça</button>
+              <article key={c.id} className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col group hover:shadow-xl hover:border-primary/50 transition-all duration-300">
+                <div className="bg-muted aspect-square p-6 overflow-hidden"><Garment shape={m.shape} body={c.color} collar={c.color === "#ffffff" ? "#1f2a44" : "#ffffff"} className="h-full w-full group-hover:scale-105 transition-transform duration-500 drop-shadow-md" /></div>
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="text-xl font-bold uppercase leading-tight font-display">{m.name}</h3>
+                  <p className="text-xs text-primary font-bold mt-1.5 uppercase tracking-wide">{FABRICS[m.fabric].name}</p>
+                  <p className="text-sm text-muted-foreground mt-3 flex-1 font-medium">{c.spec}</p>
+                  <button onClick={() => onSimulate(c.id)} className="mt-5 w-full rounded-xl bg-primary text-primary-foreground py-3.5 text-sm font-bold shadow-md cursor-pointer transition-all duration-300 hover:brightness-110 hover:scale-105">Simular Peça</button>
                 </div>
               </article>
             );
@@ -126,21 +126,21 @@ export function Compare() {
     ["Lotes pequenos (10 peças)", true, true, false],
     ["Acabamento premium", "Alto", "Máximo", "Médio"],
   ] as const;
-  const cell = (v: string | boolean) => v === true ? <Check className="h-5 w-5 text-primary mx-auto" /> : v === false ? <X className="h-5 w-5 text-destructive mx-auto" /> : <span className="text-sm">{v}</span>;
+  const cell = (v: string | boolean) => v === true ? <Check className="h-6 w-6 text-primary mx-auto" /> : v === false ? <X className="h-6 w-6 text-destructive mx-auto" /> : <span className="text-sm font-bold">{v}</span>;
   return (
-    <section id="tecnologia" data-wa="Tenho uma arte colorida para avaliar em DTF" className="py-16 md:py-24 bg-card border-y border-border">
+    <section id="tecnologia" data-wa="Tenho uma arte colorida para avaliar em DTF" className="py-16 md:py-24 bg-muted border-y border-border">
       <div className="mx-auto max-w-5xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center">DTF Digital vs. Bordado vs. Serigrafia</h2>
-        <p className="text-center text-muted-foreground mt-3 max-w-2xl mx-auto">O DTF da Inkiri não cobra telas, aceita fotos e degradês, não racha e adere em algodão, sintéticos e impermeáveis. O Bordado Computadorizado é a escolha para Polos, Moletons e Corta-Vento com máxima sofisticação.</p>
-        <div className="mt-10 overflow-x-auto rounded-2xl border border-border">
+        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center font-display">DTF Digital vs. Bordado vs. Serigrafia</h2>
+        <p className="text-center text-muted-foreground font-medium mt-4 max-w-3xl mx-auto text-lg">O DTF da Inkiri não cobra telas, aceita fotos e degradês, não racha e adere em algodão, sintéticos e impermeáveis. O Bordado Computadorizado é a escolha para Polos, Moletons e Corta-Vento com máxima sofisticação.</p>
+        <div className="mt-12 overflow-x-auto rounded-3xl border border-border shadow-lg bg-card">
           <table className="w-full text-center min-w-[560px]">
-            <thead><tr className="bg-muted"><th className="p-4 text-left text-sm">Critério</th><th className="p-4 text-primary font-display text-xl uppercase">DTF Inkiri</th><th className="p-4 font-display text-xl uppercase">Bordado</th><th className="p-4 font-display text-xl uppercase text-muted-foreground">Serigrafia</th></tr></thead>
-            <tbody>{rows.map(([l, a, b, c]) => <tr key={l} className="border-t border-border"><td className="p-4 text-left text-sm font-semibold">{l}</td><td className="p-4 bg-primary/5">{cell(a)}</td><td className="p-4">{cell(b)}</td><td className="p-4">{cell(c)}</td></tr>)}</tbody>
+            <thead><tr className="bg-background border-b border-border"><th className="p-5 text-left text-sm text-muted-foreground">Critério Técnico</th><th className="p-5 text-primary font-display text-2xl uppercase bg-primary/5">DTF Inkiri</th><th className="p-5 font-display text-2xl uppercase">Bordado</th><th className="p-5 font-display text-2xl uppercase text-muted-foreground">Serigrafia</th></tr></thead>
+            <tbody>{rows.map(([l, a, b, c]) => <tr key={l} className="border-t border-border hover:bg-muted/30 transition-colors"><td className="p-5 text-left text-sm font-bold">{l}</td><td className="p-5 bg-primary/5">{cell(a)}</td><td className="p-5">{cell(b)}</td><td className="p-5">{cell(c)}</td></tr>)}</tbody>
           </table>
         </div>
-        <div className="mt-6 grid md:grid-cols-2 gap-4">
-          <div className="rounded-xl border border-primary/40 bg-primary/10 p-5"><b className="text-primary">Use DTF quando:</b><p className="text-sm text-muted-foreground mt-1">a arte é colorida, tem foto, degradê, patrocinadores ou o tecido é Dry-Fit, UV ou impermeável.</p></div>
-          <div className="rounded-xl border border-border p-5"><b>Use Bordado quando:</b><p className="text-sm text-muted-foreground mt-1">o objetivo é imagem institucional premium em Polos, Moletons, Jaquetas e Aventais.</p></div>
+        <div className="mt-8 grid md:grid-cols-2 gap-6">
+          <div className="rounded-2xl border-2 border-primary bg-primary/5 p-6 shadow-sm"><b className="text-primary text-lg flex items-center gap-2"><Zap className="h-5 w-5" />Use DTF quando:</b><p className="text-sm font-medium text-muted-foreground mt-2">A arte for colorida, contiver foto, degradê, ou quando o tecido for Dry-Fit, proteção UV ou corta-vento impermeável.</p></div>
+          <div className="rounded-2xl border-2 border-border bg-card p-6 shadow-sm"><b className="text-foreground text-lg flex items-center gap-2"><Layers className="h-5 w-5" />Use Bordado quando:</b><p className="text-sm font-medium text-muted-foreground mt-2">O objetivo for uma imagem institucional corporativa premium (em camisas Polo, Moletons, Jaquetas e Aventais de brim).</p></div>
         </div>
       </div>
     </section>
@@ -154,27 +154,28 @@ export function SizeGuide() {
   const baby = [["PP", 40, 58], ["P", 42, 60], ["M", 44, 62], ["G", 46, 64], ["GG", 48, 66], ["XG", 50, 68]];
   return (
     <section id="medidas" data-wa="Tenho dúvida sobre os tamanhos dos uniformes" className="py-16 md:py-24">
-      <div className="mx-auto max-w-7xl px-4 grid lg:grid-cols-[1.4fr_1fr] gap-8">
+      <div className="mx-auto max-w-7xl px-4 grid lg:grid-cols-[1.4fr_1fr] gap-10">
         <div>
-          <h2 className="text-4xl md:text-6xl font-bold uppercase">Guia de medidas</h2>
-          <div className="mt-6 grid sm:grid-cols-2 gap-4">
-            {[["Tradicional / Unissex", table], ["Baby Look", baby]].map(([t, rows]) => (
-              <div key={t as string} className="rounded-2xl border border-border overflow-hidden">
-                <p className="bg-muted px-4 py-2 font-semibold text-sm">{t as string} (cm)</p>
-                <table className="w-full text-sm text-center"><thead><tr className="text-muted-foreground"><th className="py-2">Tam.</th><th>Largura</th><th>Altura</th></tr></thead>
-                  <tbody>{(rows as (string | number)[][]).map((r) => <tr key={r[0]} className={`border-t border-border ${result === r[0] ? "bg-primary/15 text-primary font-bold" : ""}`}><td className="py-2 font-semibold">{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>)}</tbody></table>
+          <h2 className="text-4xl md:text-6xl font-bold uppercase font-display">Guia de medidas</h2>
+          <div className="mt-8 grid sm:grid-cols-2 gap-6">
+            {[["Tradicional / Unissex", table], ["Baby Look Feminina", baby]].map(([t, rows]) => (
+              <div key={t as string} className="rounded-2xl border border-border overflow-hidden shadow-sm hover:border-primary/50 transition-colors">
+                <p className="bg-muted px-5 py-3 font-bold text-sm border-b border-border">{t as string} (cm)</p>
+                <table className="w-full text-sm text-center"><thead><tr className="text-muted-foreground font-semibold"><th className="py-3">Tam.</th><th>Largura</th><th>Altura</th></tr></thead>
+                  <tbody>{(rows as (string | number)[][]).map((r) => <tr key={r[0]} className={`border-t border-border transition-colors ${result === r[0] ? "bg-primary/10 text-primary font-extrabold" : "hover:bg-muted/50 font-medium"}`}><td className="py-3">{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>)}</tbody></table>
               </div>
             ))}
           </div>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6 self-start">
-          <h3 className="text-2xl font-bold uppercase flex items-center gap-2"><Calculator className="h-6 w-6 text-primary" />Calculadora de tamanho ideal</h3>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <label className="text-sm font-semibold">Altura (cm)<input type="number" inputMode="numeric" value={h} onChange={(e) => setH(e.target.value)} placeholder="175" className="mt-1 w-full rounded-lg bg-input/40 border border-input px-3 py-2.5" /></label>
-            <label className="text-sm font-semibold">Peso (kg)<input type="number" inputMode="numeric" value={w} onChange={(e) => setW(e.target.value)} placeholder="75" className="mt-1 w-full rounded-lg bg-input/40 border border-input px-3 py-2.5" /></label>
+        <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-8 self-start shadow-lg">
+          <h3 className="text-2xl font-bold uppercase flex items-center gap-2 text-primary font-display"><Calculator className="h-7 w-7" />Calculadora de Tamanho</h3>
+          <p className="text-sm font-medium text-muted-foreground mt-2 mb-6">Insira os dados do colaborador para uma recomendação automática.</p>
+          <div className="grid grid-cols-2 gap-4">
+            <label className="text-sm font-bold text-foreground">Altura (cm)<input type="number" inputMode="numeric" value={h} onChange={(e) => setH(e.target.value)} placeholder="175" className="mt-2 w-full rounded-xl bg-background border border-border px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" /></label>
+            <label className="text-sm font-bold text-foreground">Peso (kg)<input type="number" inputMode="numeric" value={w} onChange={(e) => setW(e.target.value)} placeholder="75" className="mt-2 w-full rounded-xl bg-background border border-border px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" /></label>
           </div>
-          <div className="mt-5 rounded-xl bg-muted p-5 text-center">
-            {result ? <><p className="text-sm text-muted-foreground">Tamanho recomendado</p><p className="font-display text-7xl font-extrabold text-primary">{result}</p></> : <p className="text-sm text-muted-foreground">Digite altura e peso para ver a recomendação.</p>}
+          <div className="mt-6 rounded-xl bg-card border border-border p-6 text-center shadow-inner">
+            {result ? <><p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Recomendado</p><p className="font-display text-7xl font-extrabold text-primary mt-2 animate-in zoom-in duration-300">{result}</p></> : <p className="text-sm font-medium text-muted-foreground py-4">Digite altura e peso para ver a recomendação.</p>}
           </div>
         </div>
       </div>
@@ -194,28 +195,28 @@ export function Portfolio() {
     ["Bordado impecável nas polos e entrega via Sedex para Curitiba no prazo combinado.", "Juliana P., Franquia de Serviços"],
   ];
   return (
-    <section id="portfolio" data-wa="Vi o portfólio e quero algo parecido para minha empresa" className="py-16 md:py-24 bg-card border-y border-border">
+    <section id="portfolio" data-wa="Vi o portfólio e quero algo parecido para minha empresa" className="py-16 md:py-24 bg-muted border-y border-border">
       <div className="mx-auto max-w-7xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center">Quem já confia na Inkiri</h2>
-        <div className="mt-6 flex justify-center gap-2">
+        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center font-display">Quem já confia na Inkiri</h2>
+        <div className="mt-8 flex justify-center gap-3">
           {([["empresas", "Empresas Padronizadas"], ["eventos", "Eventos Atendidos em 24h"]] as const).map(([k, l]) => (
-            <button key={k} onClick={() => setTab(k)} className={`rounded-full px-5 py-2 text-sm font-semibold border ${tab === k ? "bg-primary text-primary-foreground border-primary" : "border-border"}`}>{l}</button>
+            <button key={k} onClick={() => setTab(k)} className={`rounded-full px-6 py-3 text-sm font-bold border cursor-pointer transition-all duration-300 hover:scale-105 ${tab === k ? "bg-primary text-primary-foreground border-primary shadow-md" : "border-border bg-card hover:text-primary hover:border-primary/50"}`}>{l}</button>
           ))}
         </div>
-        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-6">
           {data[tab].map(([n, s, c]) => (
-            <div key={n} className="rounded-2xl overflow-hidden border border-border">
-              <div className="bg-stage aspect-square p-6"><Garment shape={s} body={c} collar={c === "#ffffff" ? "#15803d" : "#ffffff"} className="h-full w-full" /></div>
-              <p className="p-3 text-sm font-semibold">{n}</p>
+            <div key={n} className="rounded-2xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-lg transition-shadow group animate-in fade-in zoom-in duration-500">
+              <div className="bg-background aspect-square p-6"><Garment shape={s} body={c} collar={c === "#ffffff" ? "#15803d" : "#ffffff"} className="h-full w-full group-hover:scale-105 transition-transform duration-500" /></div>
+              <p className="p-4 text-center text-sm font-bold">{n}</p>
             </div>
           ))}
         </div>
-        <div className="mt-12 grid md:grid-cols-3 gap-4">
+        <div className="mt-16 grid md:grid-cols-3 gap-6">
           {testimonials.map(([t, a]) => (
-            <figure key={a} className="rounded-2xl bg-background border border-border p-6">
-              <div className="flex gap-0.5 text-warning">{Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div>
-              <blockquote className="mt-3 text-sm">“{t}”</blockquote>
-              <figcaption className="mt-3 text-xs text-muted-foreground">{a}</figcaption>
+            <figure key={a} className="rounded-2xl bg-card border border-border p-8 shadow-sm hover:border-primary/50 transition-colors">
+              <div className="flex gap-1 text-warning mb-4">{Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-5 w-5 fill-current" />)}</div>
+              <blockquote className="mt-3 text-base font-medium italic text-foreground">“{t}”</blockquote>
+              <figcaption className="mt-4 text-sm font-bold text-muted-foreground">— {a}</figcaption>
             </figure>
           ))}
         </div>
@@ -226,20 +227,23 @@ export function Portfolio() {
 
 export function Faq() {
   const faqs = [
-    ["Quais as vantagens do DTF?", "Sem limite de cores, aceita fotos e degradês, não tem custo de tela, é viável a partir de poucas peças e adere em algodão, poliéster, poliamida, dry-fit e tecidos impermeáveis."],
-    ["O DTF resiste a lavagens?", "Sim. Com lavagem do avesso e sem secadora em alta temperatura, a estampa mantém cor e elasticidade por dezenas de lavagens, sem rachar."],
-    ["Quais arquivos devo enviar?", "Preferencialmente vetor em PDF, AI ou CDR. Também aceitamos PNG com fundo transparente em 300 DPI. Nossa equipe revisa a arte antes de produzir."],
-    ["Vocês enviam para todo o Brasil?", "Sim, via Sedex ou transportadora com código de rastreio. O prazo de produção continua de 24h e o frete é calculado no orçamento."],
-    ["Como funciona a logística expressa no ABC Paulista?", "Para Santo André, São Bernardo, São Caetano, Diadema, Mauá e Grande SP oferecemos retirada no local ou entrega expressa em até 24h após aprovação da arte."],
-    ["Emitem nota fiscal?", "Sim, emitimos nota fiscal para CNPJ e CPF em todos os pedidos."],
+    ["Quais as vantagens do DTF da Inkiri?", "Sem limite de cores, aceita fotos e degradês, não tem custo de tela/matrizes, é viável a partir de poucas peças e adere com perfeição em algodão, poliéster, poliamida, dry-fit e tecidos impermeáveis."],
+    ["A estampa DTF resiste a lavagens?", "Sim! Com lavagem do avesso e sem o uso de secadora em alta temperatura, a estampa mantém a vibração da cor e a elasticidade por dezenas de lavagens, sem rachar ou desbotar."],
+    ["Quais arquivos de imagem devo enviar?", "Preferencialmente vetor em formato PDF, AI ou CDR. Também aceitamos arquivos PNG com fundo transparente em alta resolução (300 DPI). Nossa equipe técnica revisa toda arte gratuitamente antes de produzir."],
+    ["Vocês enviam uniformes para fora de São Paulo?", "Sim, atendemos todo o Brasil via Sedex ou transportadora parceira com código de rastreio. O nosso prazo de produção in-house continua sendo de 24h; o frete é calculado de forma transparente no fechamento do orçamento."],
+    ["Como funciona a logística expressa no ABC Paulista?", "Para as cidades de Santo André, São Bernardo do Campo, São Caetano do Sul, Diadema, Mauá e proximidades da Grande SP, oferecemos opção de retirada em mãos ou entrega via motoboy express em até 24h após a aprovação da arte."],
+    ["Vocês emitem nota fiscal para empresas?", "Sim, somos uma empresa homologada. Emitimos nota fiscal eletrônica para CNPJ e CPF em 100% dos pedidos faturados."],
   ];
   return (
-    <section id="faq" data-wa="Tenho uma dúvida sobre os pedidos" className="py-16 md:py-24">
-      <div className="mx-auto max-w-3xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center">Perguntas frequentes</h2>
-        <Accordion type="single" collapsible className="mt-8">
+    <section id="faq" data-wa="Tenho uma dúvida sobre os pedidos" className="py-16 md:py-24 bg-card">
+      <div className="mx-auto max-w-4xl px-4">
+        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center font-display text-primary">Dúvidas Frequentes</h2>
+        <Accordion type="single" collapsible className="mt-10">
           {faqs.map(([q, a]) => (
-            <AccordionItem key={q} value={q}><AccordionTrigger className="text-left text-base">{q}</AccordionTrigger><AccordionContent className="text-muted-foreground">{a}</AccordionContent></AccordionItem>
+            <AccordionItem key={q} value={q} className="border-border">
+              <AccordionTrigger className="text-left text-lg font-bold hover:text-primary cursor-pointer transition-colors py-5">{q}</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground font-medium text-base pb-6 leading-relaxed">{a}</AccordionContent>
+            </AccordionItem>
           ))}
         </Accordion>
       </div>
@@ -249,17 +253,29 @@ export function Faq() {
 
 export function Footer() {
   return (
-    <footer className="bg-ice text-ice-foreground">
-      <div className="mx-auto max-w-7xl px-4 py-12 grid md:grid-cols-4 gap-8 text-sm">
-        <div><p className="font-display text-3xl font-extrabold uppercase">Inkiri<span className="text-primary-foreground bg-primary px-1 ml-1">DTF</span></p><p className="mt-2 opacity-70">Uniformes Prontos em 24 Horas.</p></div>
-        <div className="space-y-2"><p className="flex items-center gap-2"><MapPin className="h-4 w-4" />ABC Paulista - SP</p><p className="opacity-70">Envio para todo o Brasil</p></div>
-        <div className="space-y-2">
-          <a href={waLink("Olá, equipe Inkiri!")} target="_blank" rel="noreferrer" className="flex items-center gap-2"><Phone className="h-4 w-4" />(11) 94088-2448</a>
-          <a href="mailto:contato@inkiri.com.br" className="flex items-center gap-2"><Mail className="h-4 w-4" />contato@inkiri.com.br</a>
+    <footer className="bg-foreground text-background border-t-4 border-primary">
+      <div className="mx-auto max-w-7xl px-4 py-16 grid md:grid-cols-4 gap-10 text-sm">
+        <div>
+          <p className="font-display text-4xl font-extrabold uppercase">Inkiri<span className="text-primary-foreground bg-primary px-1.5 ml-1 rounded-sm">DTF</span></p>
+          <p className="mt-3 font-medium opacity-80 text-base">Uniformes Prontos em 24 Horas.</p>
         </div>
-        <div className="space-y-1"><p className="flex items-center gap-2 font-semibold"><Clock className="h-4 w-4" />Atendimento</p><p className="opacity-70">Seg-Sex 08h às 18h</p><p className="opacity-70">Sáb 08h às 12h</p></div>
+        <div className="space-y-3 font-medium">
+          <p className="flex items-center gap-3 text-base"><MapPin className="h-5 w-5 text-primary" />ABC Paulista - SP</p>
+          <p className="opacity-70 ml-8">Envio Nacional Expresso</p>
+        </div>
+        <div className="space-y-4 font-medium">
+          <a href={waLink("Olá, equipe Inkiri!")} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-base cursor-pointer hover:text-primary transition-colors"><Phone className="h-5 w-5 text-primary" />(11) 94088-2448</a>
+          <a href="mailto:contato@inkiri.com.br" className="flex items-center gap-3 text-base cursor-pointer hover:text-primary transition-colors"><Mail className="h-5 w-5 text-primary" />contato@inkiri.com.br</a>
+        </div>
+        <div className="space-y-2 font-medium">
+          <p className="flex items-center gap-3 font-bold text-base mb-3"><Clock className="h-5 w-5 text-primary" />Atendimento</p>
+          <p className="opacity-80">Segunda a Sexta — 08h às 18h</p>
+          <p className="opacity-80">Sábados — 08h às 12h</p>
+        </div>
       </div>
-      <p className="text-center text-xs opacity-60 pb-6">© {new Date().getFullYear()} Inkiri DTF. Todos os direitos reservados.</p>
+      <div className="bg-black/20">
+        <p className="text-center text-xs font-medium opacity-60 py-6">© {new Date().getFullYear()} Inkiri DTF. Todos os direitos reservados.</p>
+      </div>
     </footer>
   );
 }
@@ -276,9 +292,9 @@ export function FloatingWhatsApp() {
   }, []);
   return (
     <a href={waLink(msg)} target="_blank" rel="noreferrer" aria-label="Falar no WhatsApp" title={msg}
-      className="fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-glow hover:scale-105 transition">
-      <MessageCircle className="h-7 w-7" />
-      <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-30" />
+      className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-green-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.5)] cursor-pointer hover:scale-110 transition-transform duration-300">
+      <MessageCircle className="h-8 w-8" />
+      <span className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-30" />
     </a>
   );
 }

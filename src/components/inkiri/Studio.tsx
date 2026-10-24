@@ -37,16 +37,16 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
   const model = (MODELS.find((m) => m.id === modelId) ?? STUDIO_MODELS[0])!;
   const [purpose, setPurpose] = useState<Purpose>(model.purpose);
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("modelo");
-  const [body, setBody] = useState("#1f2a44");
-  const [sleeve, setSleeve] = useState("#1f2a44");
-  const [collar, setCollar] = useState("#ffffff");
+  const [body, setBody] = useState("#ffffff");
+  const [sleeve, setSleeve] = useState("#ffffff");
+  const [collar, setCollar] = useState("#1f2a44");
   const [part, setPart] = useState<"body" | "sleeve" | "collar">("body");
   const [view, setView] = useState<View>("front");
   const [els, setEls] = useState<El[]>([]);
   const [sel, setSel] = useState<string | null>(null);
   const [text, setText] = useState("");
   const [font, setFont] = useState(FONTS[0].css);
-  const [textColor, setTextColor] = useState("#ffffff");
+  const [textColor, setTextColor] = useState("#111214");
   const [fabric, setFabric] = useState<FabricId>(model.fabric);
   const [tech, setTech] = useState<"dtf" | "bordado">("dtf");
   const [uni, setUni] = useState<Grid>(emptyGrid());
@@ -101,13 +101,20 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
     const purposeLabel = PURPOSES.find((p) => p.id === purpose)?.label;
     const cores = `Corpo ${colorName(body)}${model.shape !== "tank" && model.shape !== "apron" ? ` / Mangas ${colorName(sleeve)}` : ""}${model.hasCollar ? ` / Gola-Punhos ${colorName(collar)}` : ""}`;
     return `Olá, equipe Inkiri! Fiz uma simulação no site:
-- Cliente/Empresa: ${nome} — ${empresa} (WhatsApp: ${whats})
-- Propósito: ${purposeLabel}
-- Modelo e Cores: ${model.name} | ${cores}
-- Tecido e Técnica: ${FABRICS[fabric].name} + ${tech === "dtf" ? "Impressão DTF Digital" : "Bordado Computadorizado"}
-- Posição das Logos/Textos: ${positions.join(" + ") || "A definir"}
-- Quantidade Total: ${total} peças${tier ? ` (${tier.label})` : ""} | Grade: Tradicional/Unissex [${gridStr(uni)}] · Baby Look [${gridStr(baby)}]
-- Logística/Prazo: ${logistic === "urgente" ? "Urgência 24h ABC/SP (Retirada ou Entrega Expressa)" : "Envio Nacional Express (Sedex/Transportadora)"}${date ? ` | Data do evento: ${new Date(date + "T12:00").toLocaleDateString("pt-BR")}${priority ? " ⚠️ PRIORIDADE MÁXIMA" : ""}` : ""}`;
+- Cliente/Empresa: 
+${nome} — ${empresa} (WhatsApp: ${whats})
+- Propósito: 
+${purposeLabel}
+- Modelo e Cores: 
+${model.name} | ${cores}
+- Tecido e Técnica: 
+${FABRICS[fabric].name} + ${tech === "dtf" ? "Impressão DTF Digital" : "Bordado Computadorizado"}
+- Posição das Logos/Textos: 
+${positions.join(" + ") || "A definir"}
+- Quantidade Total: 
+${total} peças${tier ? ` (${tier.label})` : ""} | Grade: Tradicional/Unissex [${gridStr(uni)}] · Baby Look [${gridStr(baby)}]
+- Logística/Prazo: 
+${logistic === "urgente" ? "Urgência 24h ABC/SP (Retirada ou Entrega Expressa)" : "Envio Nacional Express (Sedex/Transportadora)"}${date ? ` | Data do evento: ${new Date(date + "T12:00").toLocaleDateString("pt-BR")}${priority ? " ⚠️ PRIORIDADE MÁXIMA" : ""}` : ""}`;
   };
 
   const models = STUDIO_MODELS.filter((m) => m.purpose === purpose);
@@ -127,7 +134,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
         <div className="flex gap-2 overflow-x-auto pb-2 justify-start md:justify-center mb-6">
           {PURPOSES.map((p) => (
             <button key={p.id} onClick={() => { setPurpose(p.id); const first = STUDIO_MODELS.find((m) => m.purpose === p.id); if (first) setModelId(first.id); }}
-              className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold border transition ${purpose === p.id ? "bg-primary text-primary-foreground border-primary" : "border-border bg-card hover:bg-accent"}`}>
+              className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold border cursor-pointer transition-all duration-300 ${purpose === p.id ? "bg-primary text-primary-foreground border-primary shadow-glow" : "border-border bg-card hover:bg-primary/10 hover:border-primary/50"}`}>
               {p.label}
             </button>
           ))}
@@ -139,38 +146,39 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
             <div className="rounded-2xl bg-card border border-border p-3 shadow-2xl">
               <div ref={stage} onPointerMove={onMove} onPointerUp={() => (drag.current = null)} onPointerDown={() => setSel(null)}
                 className="@container relative mx-auto aspect-[400/440] max-h-[42vh] lg:max-h-none w-full rounded-xl bg-stage overflow-hidden touch-none select-none">
-                <Garment shape={model.shape} body={body} sleeve={sleeve} collar={collar} view={view} className="absolute inset-0 h-full w-full p-4" />
+                <Garment shape={model.shape} body={body} sleeve={sleeve} collar={collar} view={view} className="absolute inset-0 h-full w-full p-4 transition-all duration-500 ease-in-out" />
                 {els.filter((e) => e.view === view).map((e) => (
                   <div key={e.id} onPointerDown={(ev) => onDown(ev, e, "move")}
-                    className={`absolute cursor-move -translate-x-1/2 -translate-y-1/2 ${sel === e.id ? "outline-2 outline-dashed outline-primary" : ""}`}
+                    className={`absolute cursor-move -translate-x-1/2 -translate-y-1/2 transition-transform ${sel === e.id ? "outline-2 outline-dashed outline-primary scale-[1.02]" : ""}`}
                     style={{ left: `${e.x}%`, top: `${e.y}%`, width: `${e.w}%` }}>
-                    {e.kind === "image" ? <img src={e.src} alt="Logo" draggable={false} className="w-full h-auto pointer-events-none" />
-                      : <div className="pointer-events-none text-center font-bold leading-none" style={{ fontFamily: e.font, color: e.color, fontSize: `calc(${e.w} * 0.09cqw + 0.6rem)` }}>{e.text}</div>}
-                    {sel === e.id && <span onPointerDown={(ev) => onDown(ev, e, "resize")} className="absolute -right-2 -bottom-2 h-5 w-5 rounded-full bg-primary border-2 border-ice cursor-se-resize" />}
+                    {/* Efeito de sobreposição realista adicionado com mix-blend-multiply e opacity */}
+                    {e.kind === "image" ? <img src={e.src} alt="Logo" draggable={false} className="w-full h-auto pointer-events-none mix-blend-multiply opacity-90 drop-shadow-sm" />
+                      : <div className="pointer-events-none text-center font-bold leading-none mix-blend-multiply opacity-95 drop-shadow-sm" style={{ fontFamily: e.font, color: e.color, fontSize: `calc(${e.w}0.09cqw + 0.6rem)` }}>{e.text}</div>}
+                    {sel === e.id && <span onPointerDown={(ev) => onDown(ev, e, "resize")} className="absolute -right-2 -bottom-2 h-5 w-5 rounded-full bg-primary border-2 border-white shadow-md cursor-se-resize hover:scale-125 transition-transform" />}
                   </div>
                 ))}
-                <span className="absolute left-3 top-3 rounded bg-ice-foreground/80 text-ice px-2 py-1 text-[11px] font-semibold uppercase">{view === "front" ? "Frente" : "Costas"}</span>
+                <span className="absolute left-3 top-3 rounded bg-foreground/80 text-background px-2 py-1 text-[11px] font-semibold uppercase shadow-sm">{view === "front" ? "Frente" : "Costas"}</span>
               </div>
               <div className="mt-3 flex items-center justify-between gap-2">
                 <div className="flex rounded-lg border border-border overflow-hidden">
                   {(["front", "back"] as View[]).map((v) => (
-                    <button key={v} onClick={() => setView(v)} className={`px-4 py-2 text-sm font-semibold ${view === v ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>
+                    <button key={v} onClick={() => setView(v)} className={`px-4 py-2 text-sm font-semibold cursor-pointer transition-colors duration-300 ${view === v ? "bg-primary text-primary-foreground" : "hover:bg-primary/10"}`}>
                       {v === "front" ? "Frente" : "Costas"}
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground truncate">{model.name}</p>
-                <button onClick={() => setView(view === "front" ? "back" : "front")} className="p-2 rounded-lg border border-border hover:bg-accent" aria-label="Girar"><RotateCcw className="h-4 w-4" /></button>
+                <p className="text-xs text-muted-foreground truncate font-medium">{model.name}</p>
+                <button onClick={() => setView(view === "front" ? "back" : "front")} className="p-2 rounded-lg border border-border hover:bg-primary/10 cursor-pointer transition-all duration-300 hover:rotate-180" aria-label="Girar"><RotateCcw className="h-4 w-4 text-primary" /></button>
               </div>
             </div>
           </div>
 
           {/* Panel */}
-          <div className="rounded-2xl bg-card border border-border">
+          <div className="rounded-2xl bg-card border border-border shadow-sm">
             <div className="grid grid-cols-6 border-b border-border">
               {TABS.map((t) => (
-                <button key={t.id} onClick={() => setTab(t.id)} className={`flex flex-col items-center gap-1 py-3 text-[11px] sm:text-xs font-semibold border-b-2 transition ${tab === t.id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
-                  <t.icon className="h-5 w-5" />{t.label}
+                <button key={t.id} onClick={() => setTab(t.id)} className={`flex flex-col items-center gap-1 py-3 text-[11px] sm:text-xs font-semibold border-b-2 cursor-pointer transition-all duration-300 hover:bg-muted/50 ${tab === t.id ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-primary"}`}>
+                  <t.icon className={`h-5 w-5 transition-transform duration-300 ${tab === t.id ? "scale-110" : ""}`} />{t.label}
                 </button>
               ))}
             </div>
@@ -178,8 +186,8 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               {tab === "modelo" && (
                 <div className="grid grid-cols-2 gap-3">
                   {models.map((m) => (
-                    <button key={m.id} onClick={() => setModelId(m.id)} className={`rounded-xl border p-3 text-left transition ${m.id === model.id ? "border-primary bg-primary/10" : "border-border hover:bg-accent"}`}>
-                      <div className="bg-stage rounded-lg aspect-square mb-2"><Garment shape={m.shape} body={body} sleeve={sleeve} collar={collar} className="h-full w-full p-2" /></div>
+                    <button key={m.id} onClick={() => setModelId(m.id)} className={`rounded-xl border p-3 text-left cursor-pointer transition-all duration-300 group ${m.id === model.id ? "border-primary bg-primary/10 shadow-sm" : "border-border hover:bg-primary/5 hover:border-primary/50"}`}>
+                      <div className="bg-muted rounded-lg aspect-square mb-2 group-hover:scale-[1.02] transition-transform duration-300"><Garment shape={m.shape} body={body} sleeve={sleeve} collar={collar} className="h-full w-full p-2" /></div>
                       <span className="text-sm font-semibold leading-tight block">{m.name}</span>
                     </button>
                   ))}
@@ -189,92 +197,92 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               {tab === "cores" && (<>
                 <div className="flex gap-2 flex-wrap">
                   {([["body", "Corpo"], ...(hasSleeves ? [["sleeve", "Mangas"]] : []), ...(model.hasCollar || ["apron", "shorts", "pants"].includes(model.shape) ? [["collar", model.shape === "apron" ? "Alças" : ["shorts", "pants"].includes(model.shape) ? "Cós/Punhos" : "Gola & Punhos"]] : [])] as [typeof part, string][]).map(([k, l]) => (
-                    <button key={k} onClick={() => setPart(k)} className={`rounded-lg px-4 py-2 text-sm font-semibold border ${part === k ? "bg-primary text-primary-foreground border-primary" : "border-border"}`}>{l}</button>
+                    <button key={k} onClick={() => setPart(k)} className={`rounded-lg px-4 py-2 text-sm font-semibold border cursor-pointer transition-all duration-300 ${part === k ? "bg-primary text-primary-foreground border-primary shadow-md" : "border-border hover:border-primary/50 hover:bg-primary/5"}`}>{l}</button>
                   ))}
                 </div>
                 <div className="grid grid-cols-6 gap-3">
                   {swatches.map((c) => (
                     <button key={c.hex} title={c.name} onClick={() => setCurrent(c.hex)}
-                      className={`aspect-square rounded-full border-2 transition ${current === c.hex ? "border-primary scale-110 shadow-glow" : "border-border"}`} style={{ background: c.hex }} />
+                      className={`aspect-square rounded-full border-2 cursor-pointer transition-all duration-300 hover:scale-110 ${current === c.hex ? "border-primary scale-110 shadow-glow" : "border-border hover:border-primary/50"}`} style={{ background: c.hex }} />
                   ))}
                 </div>
                 <p className="text-sm">Selecionada: <b>{colorName(current)}</b></p>
                 {isStockColor(current) ? (
-                  <div className="flex items-center gap-2 rounded-lg bg-primary/15 text-primary px-3 py-2 text-sm font-semibold"><CheckCircle2 className="h-4 w-4" />Cor disponível a pronta-entrega (Produção 24h)</div>
+                  <div className="flex items-center gap-2 rounded-lg bg-primary/10 text-primary border border-primary/20 px-3 py-2 text-sm font-semibold animate-in fade-in zoom-in duration-300"><CheckCircle2 className="h-4 w-4" />Cor disponível a pronta-entrega (Produção 24h)</div>
                 ) : (
-                  <div className="flex items-center gap-2 rounded-lg bg-warning/15 text-warning px-3 py-2 text-sm font-semibold"><AlertTriangle className="h-4 w-4" />Cor sob encomenda — prazo a confirmar</div>
+                  <div className="flex items-center gap-2 rounded-lg bg-warning/10 text-warning border border-warning/20 px-3 py-2 text-sm font-semibold animate-in fade-in zoom-in duration-300"><AlertTriangle className="h-4 w-4" />Cor sob encomenda — prazo a confirmar</div>
                 )}
               </>)}
 
               {tab === "arte" && (<>
-                <label className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/60 p-5 cursor-pointer hover:bg-primary/10 font-semibold">
-                  <Upload className="h-5 w-5 text-primary" /> Enviar logo / estampa (PNG, SVG, JPG)
+                <label className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/40 p-5 cursor-pointer transition-all duration-300 hover:bg-primary/5 hover:border-primary text-primary font-semibold">
+                  <Upload className="h-5 w-5" /> Enviar logo / estampa (PNG, SVG)
                   <input type="file" accept="image/png,image/svg+xml,image/jpeg" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
                 </label>
                 <div className="flex gap-2">
-                  <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Nome, cargo, frase ou número" className="flex-1 rounded-lg bg-input/40 border border-input px-3 py-2 text-sm" />
-                  <button onClick={() => { if (text.trim()) { add({ kind: "text", text, font, color: textColor }); setText(""); } }} className="rounded-lg bg-primary text-primary-foreground px-3 font-semibold flex items-center gap-1"><Type className="h-4 w-4" />Inserir</button>
+                  <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Nome, cargo, frase ou número" className="flex-1 rounded-lg bg-muted border border-border px-3 py-2 text-sm transition-colors focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
+                  <button onClick={() => { if (text.trim()) { add({ kind: "text", text, font, color: textColor }); setText(""); } }} className="rounded-lg bg-primary text-primary-foreground px-4 font-semibold flex items-center gap-1 cursor-pointer transition-all duration-300 hover:brightness-110 hover:scale-105"><Type className="h-4 w-4" />Inserir</button>
                 </div>
                 <div className="flex gap-2 flex-wrap items-center">
-                  <select value={font} onChange={(e) => { setFont(e.target.value); if (selected?.kind === "text") update(selected.id, { font: e.target.value }); }} className="rounded-lg bg-input/40 border border-input px-2 py-2 text-sm">
+                  <select value={font} onChange={(e) => { setFont(e.target.value); if (selected?.kind === "text") update(selected.id, { font: e.target.value }); }} className="rounded-lg bg-muted border border-border px-3 py-2 text-sm cursor-pointer outline-none focus:border-primary transition-colors">
                     {FONTS.map((f) => <option key={f.label} value={f.css}>{f.label}</option>)}
                   </select>
                   {["#ffffff", "#111214", "#facc15", "#dc2626", "#1d4ed8", "#15803d"].map((c) => (
-                    <button key={c} onClick={() => { setTextColor(c); if (selected?.kind === "text") update(selected.id, { color: c }); }} className={`h-7 w-7 rounded-full border-2 ${textColor === c ? "border-primary" : "border-border"}`} style={{ background: c }} aria-label="Cor do texto" />
+                    <button key={c} onClick={() => { setTextColor(c); if (selected?.kind === "text") update(selected.id, { color: c }); }} className={`h-8 w-8 rounded-full border-2 cursor-pointer transition-transform hover:scale-110 ${textColor === c ? "border-primary scale-110 shadow-md" : "border-border"}`} style={{ background: c }} aria-label="Cor do texto" />
                   ))}
                 </div>
                 {selected ? (
-                  <div className="rounded-xl border border-border p-3 space-y-3">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Posicionamento rápido</p>
+                  <div className="rounded-xl border border-border p-4 space-y-3 bg-muted/30 animate-in fade-in duration-300">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Posicionamento rápido</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {QUICK.map((q) => (
                         <button key={q.label} onClick={() => { update(selected.id, { x: q.x, y: q.y, w: selected.kind === "text" ? Math.max(q.w, 20) : q.w, view: q.view, pos: q.label }); setView(q.view); }}
-                          className={`rounded-lg border px-2 py-2 text-xs font-semibold ${selected.pos === q.label ? "border-primary text-primary" : "border-border hover:bg-accent"}`}>{q.label}</button>
+                          className={`rounded-lg border px-2 py-2 text-xs font-semibold cursor-pointer transition-all duration-300 ${selected.pos === q.label ? "border-primary text-primary bg-primary/10 shadow-sm" : "border-border hover:border-primary/50 hover:bg-primary/5"}`}>{q.label}</button>
                       ))}
                     </div>
-                    <label className="block text-xs text-muted-foreground">Tamanho
-                      <input type="range" min={5} max={80} value={selected.w} onChange={(e) => update(selected.id, { w: +e.target.value })} className="w-full accent-[var(--primary)]" />
+                    <label className="block text-xs text-muted-foreground font-semibold">Tamanho e Escala
+                      <input type="range" min={5} max={80} value={selected.w} onChange={(e) => update(selected.id, { w: +e.target.value })} className="mt-2 w-full accent-primary cursor-ew-resize" />
                     </label>
-                    <button onClick={() => { setEls((p) => p.filter((e) => e.id !== selected.id)); setSel(null); }} className="flex items-center gap-1 text-sm text-destructive"><Trash2 className="h-4 w-4" />Remover elemento</button>
+                    <button onClick={() => { setEls((p) => p.filter((e) => e.id !== selected.id)); setSel(null); }} className="flex items-center gap-1 text-sm text-destructive cursor-pointer transition-colors hover:text-red-600 font-medium"><Trash2 className="h-4 w-4" />Remover elemento</button>
                   </div>
-                ) : <p className="text-sm text-muted-foreground">Arraste os elementos na peça. Toque em um elemento para ajustar tamanho e posição.</p>}
-                {els.length > 0 && <p className="text-xs text-muted-foreground">{els.length} elemento(s): {positions.join(" · ")}</p>}
+                ) : <p className="text-sm text-muted-foreground bg-muted p-4 rounded-xl border border-border text-center">Arraste os elementos na peça. Toque em um elemento para ajustar seu tamanho e posição.</p>}
+                {els.length > 0 && <p className="text-xs text-muted-foreground font-medium">{els.length} elemento(s): {positions.join(" · ")}</p>}
               </>)}
 
               {tab === "tecido" && (<>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">Tecido recomendado</p>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold">Tecido recomendado</p>
                 <div className="space-y-2">
                   {(Object.keys(FABRICS) as FabricId[]).map((f) => (
-                    <button key={f} onClick={() => setFabric(f)} className={`w-full text-left rounded-xl border p-3 ${fabric === f ? "border-primary bg-primary/10" : "border-border hover:bg-accent"}`}>
-                      <div className="flex items-center justify-between font-semibold text-sm">{FABRICS[f].name}{f === model.fabric && <span className="text-[10px] uppercase bg-primary text-primary-foreground rounded px-1.5 py-0.5">Recomendado</span>}</div>
+                    <button key={f} onClick={() => setFabric(f)} className={`w-full text-left rounded-xl border p-3 cursor-pointer transition-all duration-300 group ${fabric === f ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50 hover:bg-muted/50"}`}>
+                      <div className="flex items-center justify-between font-semibold text-sm group-hover:text-primary transition-colors">{FABRICS[f].name}{f === model.fabric && <span className="text-[10px] uppercase bg-primary text-primary-foreground rounded px-1.5 py-0.5 shadow-sm">Recomendado</span>}</div>
                       <p className="text-xs text-muted-foreground mt-1">{FABRICS[f].tip}</p>
                     </button>
                   ))}
                 </div>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground pt-2">Técnica in-house</p>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-bold pt-2">Técnica in-house</p>
                 <div className="grid sm:grid-cols-2 gap-2">
-                  <button onClick={() => setTech("dtf")} className={`rounded-xl border p-3 text-left ${tech === "dtf" ? "border-primary bg-primary/10" : "border-border"}`}>
-                    <b className="text-sm">Impressão DTF Digital</b>
-                    <p className="text-xs text-muted-foreground mt-1">Sem limite de cores, permite degradês/fotos, zero custo de tela e alta durabilidade em qualquer tecido (inclusive Corta-Vento e Dry-Fit).</p>
+                  <button onClick={() => setTech("dtf")} className={`rounded-xl border p-3 text-left cursor-pointer transition-all duration-300 ${tech === "dtf" ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50"}`}>
+                    <b className="text-sm text-primary">Impressão DTF Digital</b>
+                    <p className="text-xs text-muted-foreground mt-1">Sem limite de cores, permite degradês/fotos, zero custo de tela e alta durabilidade em qualquer tecido.</p>
                   </button>
-                  <button onClick={() => setTech("bordado")} className={`rounded-xl border p-3 text-left ${tech === "bordado" ? "border-primary bg-primary/10" : "border-border"}`}>
-                    <b className="text-sm">Bordado Computadorizado Industrial</b>
-                    <p className="text-xs text-muted-foreground mt-1">Ideal para Polos, Moletons e Corta-Vento — máxima sofisticação e durabilidade.</p>
+                  <button onClick={() => setTech("bordado")} className={`rounded-xl border p-3 text-left cursor-pointer transition-all duration-300 ${tech === "bordado" ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50"}`}>
+                    <b className="text-sm text-primary">Bordado Computadorizado</b>
+                    <p className="text-xs text-muted-foreground mt-1">Ideal para Polos, Moletons e Corta-Vento — máxima sofisticação e durabilidade institucional.</p>
                   </button>
                 </div>
-                {tech === "bordado" && ["dryfit"].includes(fabric) && <p className="text-xs text-warning">Dica: em Dry-Fit/UV recomendamos DTF para manter leveza do tecido.</p>}
+                {tech === "bordado" && ["dryfit"].includes(fabric) && <p className="text-xs text-warning font-semibold flex items-center gap-1 mt-2 animate-in fade-in duration-300"><AlertTriangle className="h-4 w-4" />Dica: em Dry-Fit/UV recomendamos DTF para manter leveza.</p>}
               </>)}
 
               {tab === "grade" && (<>
                 {([["Tradicional / Unissex", uni, setUni], ["Baby Look Feminina", baby, setBaby]] as const).map(([label, g, set]) => (
                   <div key={label}>
-                    <p className="text-sm font-semibold mb-2">{label} <span className="text-muted-foreground font-normal">({gridTotal(g)})</span></p>
+                    <p className="text-sm font-semibold mb-2 text-primary">{label} <span className="text-muted-foreground font-normal">({gridTotal(g)})</span></p>
                     <div className="grid grid-cols-6 gap-2">
                       {SIZES.map((s) => (
                         <label key={s} className="text-center text-xs font-semibold text-muted-foreground">{s}
                           <input type="number" min={0} inputMode="numeric" value={g[s] || ""} placeholder="0"
                             onChange={(e) => set({ ...g, [s]: Math.max(0, parseInt(e.target.value) || 0) })}
-                            className="mt-1 w-full rounded-lg bg-input/40 border border-input py-2 text-center text-base text-foreground" />
+                            className="mt-1 w-full rounded-lg bg-muted border border-border py-2 text-center text-base text-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" />
                         </label>
                       ))}
                     </div>
@@ -284,47 +292,47 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
 
               {tab === "entrega" && (<>
                 <div className="grid gap-2">
-                  <button onClick={() => setLogistic("urgente")} className={`flex gap-3 rounded-xl border p-3 text-left ${logistic === "urgente" ? "border-primary bg-primary/10" : "border-border"}`}>
-                    <Zap className="h-5 w-5 text-primary shrink-0" /><span className="text-sm"><b>Urgência 24h:</b> Retirada ou Entrega Expressa (ABC Paulista e Grande SP)</span>
+                  <button onClick={() => setLogistic("urgente")} className={`flex gap-3 rounded-xl border p-4 text-left cursor-pointer transition-all duration-300 group ${logistic === "urgente" ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50"}`}>
+                    <Zap className={`h-6 w-6 text-primary shrink-0 transition-transform ${logistic === "urgente" ? "scale-110 fill-primary/20" : "group-hover:scale-110"}`} /><span className="text-sm"><b className="text-primary">Urgência 24h:</b> Retirada ou Entrega Expressa (ABC Paulista e Grande SP)</span>
                   </button>
-                  <button onClick={() => setLogistic("nacional")} className={`flex gap-3 rounded-xl border p-3 text-left ${logistic === "nacional" ? "border-primary bg-primary/10" : "border-border"}`}>
-                    <Truck className="h-5 w-5 text-primary shrink-0" /><span className="text-sm"><b>Envio Nacional Express</b> (Sedex / Transportadora com rastreio)</span>
+                  <button onClick={() => setLogistic("nacional")} className={`flex gap-3 rounded-xl border p-4 text-left cursor-pointer transition-all duration-300 group ${logistic === "nacional" ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50"}`}>
+                    <Truck className={`h-6 w-6 text-primary shrink-0 transition-transform ${logistic === "nacional" ? "scale-110 fill-primary/20" : "group-hover:scale-110"}`} /><span className="text-sm"><b className="text-primary">Envio Nacional Express</b> (Sedex / Transportadora com rastreio)</span>
                   </button>
                 </div>
-                <label className="block text-sm font-semibold">Você tem uma data limite ou data marcada para o evento?
-                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-2 w-full rounded-lg bg-input/40 border border-input px-3 py-2 [color-scheme:dark]" />
+                <label className="block text-sm font-semibold mt-4">Você tem uma data limite ou data marcada para o evento?
+                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-2 w-full rounded-lg bg-muted border border-border px-3 py-2.5 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors cursor-pointer" />
                 </label>
                 {date && (priority
-                  ? <div className="flex items-center gap-2 rounded-lg bg-destructive/15 text-destructive px-3 py-2 text-sm font-semibold"><CalendarClock className="h-4 w-4" />Prioridade máxima na esteira de produção</div>
-                  : <div className="flex items-center gap-2 rounded-lg bg-primary/15 text-primary px-3 py-2 text-sm font-semibold"><CheckCircle2 className="h-4 w-4" />Prazo confortável — produção garantida</div>)}
+                  ? <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm font-semibold animate-in slide-in-from-bottom-2 duration-300"><CalendarClock className="h-5 w-5 animate-pulse" />Prioridade máxima na esteira de produção</div>
+                  : <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 text-primary px-4 py-3 text-sm font-semibold animate-in slide-in-from-bottom-2 duration-300"><CheckCircle2 className="h-5 w-5" />Prazo confortável — produção garantida</div>)}
               </>)}
             </div>
 
             {/* Summary */}
-            <div className="border-t border-border p-5 space-y-3 bg-muted/40 rounded-b-2xl">
+            <div className="border-t border-border p-5 space-y-4 bg-muted/50 rounded-b-2xl">
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 font-semibold"><Package className="h-4 w-4 text-primary" />Total: {total} peças</span>
-                <span className="text-xs font-semibold text-primary">{tier?.label ?? `Mínimo ${MIN_ORDER} peças`}</span>
+                <span className="flex items-center gap-2 font-bold text-lg"><Package className="h-5 w-5 text-primary" />Total: {total} peças</span>
+                <span className="text-xs font-bold px-2 py-1 rounded bg-primary/10 text-primary">{tier?.label ?? `Mínimo ${MIN_ORDER} peças`}</span>
               </div>
               <div>
-                <div className="h-2.5 rounded-full bg-secondary overflow-hidden">
-                  <div className="h-full bg-primary transition-all" style={{ width: `${Math.min(100, (total / 100) * 100)}%` }} />
+                <div className="h-3 rounded-full bg-border overflow-hidden shadow-inner">
+                  <div className="h-full bg-primary transition-all duration-700 ease-out" style={{ width: `${Math.min(100, (total / 100) * 100)}%` }} />
                 </div>
-                <div className="grid grid-cols-3 mt-2 text-[10px] sm:text-[11px] leading-tight">
+                <div className="grid grid-cols-3 mt-2 text-[10px] sm:text-[11px] leading-tight font-medium">
                   {TIERS.map((t) => (
-                    <div key={t.id} className={`${tier?.id === t.id ? "text-primary font-bold" : "text-muted-foreground"} ${t.id === "atacado" ? "text-right" : t.id === "empresarial" ? "text-center" : ""}`}>
+                    <div key={t.id} className={`transition-colors duration-300 ${tier?.id === t.id ? "text-primary font-bold" : "text-muted-foreground"} ${t.id === "atacado" ? "text-right" : t.id === "empresarial" ? "text-center" : ""}`}>
                       {t.label}<br />{t.range}
                     </div>
                   ))}
                 </div>
-                {total > 0 && total < 100 && <p className="text-xs mt-2 text-muted-foreground">Faltam <b className="text-foreground">{(total < 10 ? 10 : total < 30 ? 30 : 100) - total}</b> peças para o próximo nível de benefício.</p>}
+                {total > 0 && total < 100 && <p className="text-xs mt-2 text-muted-foreground">Faltam <b className="text-primary font-bold">{(total < 10 ? 10 : total < 30 ? 30 : 100) - total}</b> peças para o próximo nível de benefício.</p>}
               </div>
-              {total < MIN_ORDER && <p className="text-xs text-warning flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5" />Pedido mínimo de {MIN_ORDER} peças. Preencha a grade.</p>}
+              {total < MIN_ORDER && <p className="text-xs text-warning flex items-center gap-1 font-semibold animate-pulse"><AlertTriangle className="h-4 w-4" />Pedido mínimo de {MIN_ORDER} peças. Preencha a grade.</p>}
               <button disabled={total < MIN_ORDER} onClick={() => setOpen(true)}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-4 font-bold text-base shadow-glow disabled:opacity-40 disabled:shadow-none hover:brightness-110 transition">
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-4 font-bold text-base shadow-glow cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:brightness-110 disabled:opacity-40 disabled:shadow-none disabled:hover:scale-100 disabled:cursor-not-allowed">
                 <MessageCircle className="h-5 w-5" />Receber Orçamento Express no WhatsApp
               </button>
-              {total < MIN_ORDER && <button onClick={() => setTab("grade")} className="w-full text-xs underline text-muted-foreground">Ir para a grade de tamanhos</button>}
+              {total < MIN_ORDER && <button onClick={() => setTab("grade")} className="w-full text-xs underline text-muted-foreground cursor-pointer hover:text-primary transition-colors">Ir para a grade de tamanhos</button>}
             </div>
           </div>
         </div>
@@ -341,17 +349,17 @@ function LeadModal({ open, onOpenChange, onSubmit }: { open: boolean; onOpenChan
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-2xl uppercase">Sua ficha técnica está pronta</DialogTitle>
-          <DialogDescription>Só faltam 3 dados para enviarmos ao comercial.</DialogDescription>
+          <DialogTitle className="text-2xl uppercase font-display text-primary">Sua ficha técnica está pronta</DialogTitle>
+          <DialogDescription className="font-medium">Só faltam 3 dados para enviarmos ao comercial.</DialogDescription>
         </DialogHeader>
-        <form className="space-y-3" onSubmit={(ev) => { ev.preventDefault(); if (valid) onSubmit(n.trim(), e.trim(), w.trim()); }}>
+        <form className="space-y-4" onSubmit={(ev) => { ev.preventDefault(); if (valid) onSubmit(n.trim(), e.trim(), w.trim()); }}>
           {([["Seu nome", n, setN, "text"], ["Nome da Empresa ou Evento", e, setE, "text"], ["WhatsApp (com DDD)", w, setW, "tel"]] as const).map(([l, v, s, t]) => (
             <label key={l} className="block text-sm font-semibold">{l}
-              <input type={t} value={v} maxLength={80} onChange={(x) => s(x.target.value)} className="mt-1 w-full rounded-lg bg-input/40 border border-input px-3 py-2.5" />
+              <input type={t} value={v} maxLength={80} onChange={(x) => s(x.target.value)} className="mt-1 w-full rounded-lg bg-muted border border-border px-3 py-2.5 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" />
             </label>
           ))}
-          <button disabled={!valid} className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3.5 font-bold disabled:opacity-40">
-            <MessageCircle className="h-5 w-5" />Enviar para o WhatsApp
+          <button disabled={!valid} className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-4 font-bold text-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:brightness-110 disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed mt-2 shadow-glow">
+            <MessageCircle className="h-6 w-6" />Enviar para o WhatsApp
           </button>
         </form>
       </DialogContent>

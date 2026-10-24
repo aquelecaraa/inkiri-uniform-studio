@@ -108,22 +108,7 @@ function GarmentSvg({ shape, body, sleeve, collar, view = "front", className }: 
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Peças com FOTO real (arquivos em /public/garments)                 */
-/*                                                                     */
-/*  Cada foto tem:                                                     */
-/*   - {nome}.webp          → sombras/texturas da peça (cinza neutro,  */
-/*                            fundo transparente)                      */
-/*   - {nome}.regions.png   → mapa de regiões: R = mangas,             */
-/*                            G = gola/punhos, resto = corpo           */
-/*  O componente "tinge" a foto multiplicando a cor de cada região.    */
-/*                                                                     */
-/*  Para adicionar um modelo novo: coloque os 2 arquivos em            */
-/*  /public/garments e registre o shape na tabela PHOTOS abaixo.       */
-/*  Shapes sem foto continuam usando o SVG antigo (GarmentSvg).        */
-/* ------------------------------------------------------------------ */
-
-type PhotoAsset = { name: string; w: number; h: number }; // w/h = tamanho original da imagem
+type PhotoAsset = { name: string; w: number; h: number }; 
 const PHOTOS: Partial<Record<Shape, { front: PhotoAsset; back?: PhotoAsset }>> = {
   tshirt: {
     front: { name: "tshirt-front", w: 1288, h: 1448 },
@@ -141,11 +126,10 @@ const PHOTOS: Partial<Record<Shape, { front: PhotoAsset; back?: PhotoAsset }>> =
     front: { name: "babylook-front", w: 1399, h: 1448 },
     back: { name: "babylook-back", w: 1396, h: 1448 },
   },
-  // regata: só temos foto da frente; nas costas cai no SVG
   tank: { front: { name: "tank-front", w: 801, h: 1448 } },
 };
 
-const MAX_H = 800; // resolução interna do canvas (altura). Suficiente p/ tela retina do simulador.
+const MAX_H = 800; 
 
 type Loaded = { w: number; h: number; shade: Uint8ClampedArray; regions: Uint8ClampedArray };
 const cache = new Map<string, Promise<Loaded>>();
@@ -178,7 +162,7 @@ function loadAsset(a: PhotoAsset): Promise<Loaded> {
     p = Promise.all([loadImage(`/garments/${a.name}.webp`), loadImage(`/garments/${a.name}.regions.png`)]).then(
       ([shadeImg, regImg]) => ({ w, h, shade: pixels(shadeImg, w, h), regions: pixels(regImg, w, h) }),
     );
-    p.catch(() => cache.delete(a.name)); // permite tentar de novo se falhar
+    p.catch(() => cache.delete(a.name)); 
     cache.set(a.name, p);
   }
   return p;
@@ -209,13 +193,17 @@ function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: Photo
         const C = hexToRgb(collar);
         const out = ctx.createImageData(w, h);
         const o = out.data;
+        
         for (let i = 0; i < o.length; i += 4) {
           const a = shade[i + 3]!;
-          if (a === 0) continue; // fora da peça: transparente
-          const ws = regions[i]! / 255;
-          const wc = regions[i + 1]! / 255;
-          const wb = Math.max(0, 1 - ws - wc);
-          const g = shade[i]! / 255; // sombra (cinza neutro)
+          if (a === 0) continue; 
+          
+          // Correção do recorte da máscara: Força limites rígidos para evitar vazamentos
+          const ws = regions[i]! > 127 ? 1 : 0; 
+          const wc = regions[i + 1]! > 127 ? 1 : 0; 
+          const wb = (ws === 0 && wc === 0) ? 1 : 0;
+          
+          const g = shade[i]! / 255; 
           o[i] = (B[0] * wb + S[0] * ws + C[0] * wc) * g;
           o[i + 1] = (B[1] * wb + S[1] * ws + C[1] * wc) * g;
           o[i + 2] = (B[2] * wb + S[2] * ws + C[2] * wc) * g;
@@ -223,12 +211,8 @@ function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: Photo
         }
         ctx.putImageData(out, 0, 0);
       })
-      .catch(() => {
-        /* sem imagem: o canvas fica vazio (ex.: testes em jsdom) */
-      });
-    return () => {
-      cancelled = true;
-    };
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [asset, body, sleeve, collar]);
 
   return (
@@ -238,7 +222,7 @@ function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: Photo
       height={h}
       role="img"
       aria-label="Peça"
-      className={`${className ?? ""} object-contain`}
+      className={`${className ?? ""} object-contain mix-blend-multiply`}
       style={{ aspectRatio: `${w} / ${h}` }}
     />
   );
