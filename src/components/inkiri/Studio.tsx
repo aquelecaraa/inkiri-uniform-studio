@@ -34,7 +34,7 @@ const TABS = [
 ] as const;
 
 export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (id: string) => void }) {
-  const model = MODELS.find((m) => m.id === modelId) ?? STUDIO_MODELS[0];
+  const model = (MODELS.find((m) => m.id === modelId) ?? STUDIO_MODELS[0])!;
   const [purpose, setPurpose] = useState<Purpose>(model.purpose);
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("modelo");
   const [body, setBody] = useState("#1f2a44");
@@ -65,7 +65,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
   const selected = els.find((e) => e.id === sel);
 
   const add = (e: Omit<El, "id" | "x" | "y" | "w" | "view" | "pos">) => {
-    const q = QUICK.find((q) => q.view === view) ?? QUICK[0];
+    const q = (QUICK.find((q) => q.view === view) ?? QUICK[0])!;
     const id = crypto.randomUUID();
     setEls((p) => [...p, { ...e, id, x: q.x, y: q.y, w: e.kind === "text" ? 34 : q.w, view, pos: q.label }]);
     setSel(id);
