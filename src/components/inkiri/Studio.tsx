@@ -141,7 +141,6 @@ ${logistic === "urgente" ? "Urgência 24h ABC/SP (Retirada ou Entrega Expressa)"
         </div>
 
         <div className="grid lg:grid-cols-[1.1fr_1fr] gap-6 items-start">
-          {/* Stage */}
           <div className="sticky top-9 z-20 lg:top-20">
             <div className="rounded-2xl bg-card border border-border p-3 shadow-2xl">
               <div ref={stage} onPointerMove={onMove} onPointerUp={() => (drag.current = null)} onPointerDown={() => setSel(null)}
@@ -150,10 +149,18 @@ ${logistic === "urgente" ? "Urgência 24h ABC/SP (Retirada ou Entrega Expressa)"
                 {els.filter((e) => e.view === view).map((e) => (
                   <div key={e.id} onPointerDown={(ev) => onDown(ev, e, "move")}
                     className={`absolute cursor-move -translate-x-1/2 -translate-y-1/2 transition-transform ${sel === e.id ? "outline-2 outline-dashed outline-primary scale-[1.02]" : ""}`}
-                    style={{ left: `${e.x}%`, top: `${e.y}%`, width: `${e.w}%` }}>
-                    {/* Efeito de sobreposição realista adicionado com mix-blend-multiply e opacity */}
-                    {e.kind === "image" ? <img src={e.src} alt="Logo" draggable={false} className="w-full h-auto pointer-events-none mix-blend-multiply opacity-90 drop-shadow-sm" />
-                      : <div className="pointer-events-none text-center font-bold leading-none mix-blend-multiply opacity-95 drop-shadow-sm" style={{ fontFamily: e.font, color: e.color, fontSize: `calc(${e.w}0.09cqw + 0.6rem)` }}>{e.text}</div>}
+                    style={{ left: `${Math.max(10, Math.min(90, e.x))}%`, top: `${Math.max(10, Math.min(90, e.y))}%`, width: `${e.w}%` }}>
+                    
+                    {e.kind === "image" ? (
+                      <img src={e.src} alt="Logo" draggable={false} className="w-full h-auto pointer-events-none mix-blend-multiply opacity-85 drop-shadow-sm" />
+                    ) : (
+                      <svg viewBox="0 0 200 50" className="w-full h-auto pointer-events-none mix-blend-multiply opacity-85 drop-shadow-sm overflow-visible">
+                        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill={e.color} fontFamily={e.font} fontSize="40" fontWeight="bold">
+                          {e.text}
+                        </text>
+                      </svg>
+                    )}
+                    
                     {sel === e.id && <span onPointerDown={(ev) => onDown(ev, e, "resize")} className="absolute -right-2 -bottom-2 h-5 w-5 rounded-full bg-primary border-2 border-white shadow-md cursor-se-resize hover:scale-125 transition-transform" />}
                   </div>
                 ))}
@@ -173,7 +180,6 @@ ${logistic === "urgente" ? "Urgência 24h ABC/SP (Retirada ou Entrega Expressa)"
             </div>
           </div>
 
-          {/* Panel */}
           <div className="rounded-2xl bg-card border border-border shadow-sm">
             <div className="grid grid-cols-6 border-b border-border">
               {TABS.map((t) => (
@@ -308,7 +314,6 @@ ${logistic === "urgente" ? "Urgência 24h ABC/SP (Retirada ou Entrega Expressa)"
               </>)}
             </div>
 
-            {/* Summary */}
             <div className="border-t border-border p-5 space-y-4 bg-muted/50 rounded-b-2xl">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 font-bold text-lg"><Package className="h-5 w-5 text-primary" />Total: {total} peças</span>

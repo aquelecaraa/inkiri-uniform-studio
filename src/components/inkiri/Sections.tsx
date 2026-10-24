@@ -1,300 +1,241 @@
-import { useEffect, useState } from "react";
-import { Zap, FileCheck2, Palette, TrendingDown, MousePointerClick, Warehouse, Factory, Truck, MessageCircle, Check, X, Star, MapPin, Phone, Mail, Clock, Calculator, Layers } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Garment } from "./Garment";
-import { CATALOG, CATALOG_TABS, MODELS, FABRICS, recommendSize, waLink, type CatalogTab } from "@/lib/inkiri";
+import { useEffect, useRef } from "react";
+import type { Shape } from "@/lib/inkiri";
 
-export function TopBar() {
+type Props = {
+  shape: Shape;
+  body: string;
+  sleeve?: string;
+  collar?: string;
+  view?: "front" | "back";
+  className?: string;
+};
+
+const BODY: Record<Shape, string> = {
+  tshirt: "M145 50 Q200 88 255 50 L300 76 L300 420 L100 420 L100 76 Z",
+  longsleeve: "M145 50 Q200 88 255 50 L300 76 L300 420 L100 420 L100 76 Z",
+  polo: "M145 50 Q200 80 255 50 L300 76 L300 420 L100 420 L100 76 Z",
+  crewneck: "M145 50 Q200 88 255 50 L302 76 L302 405 L98 405 L98 76 Z",
+  hoodie: "M145 50 Q200 88 255 50 L302 76 L302 405 L98 405 L98 76 Z",
+  jacket: "M150 48 L200 60 L250 48 L302 76 L302 412 L98 412 L98 76 Z",
+  babylook: "M150 56 Q200 90 250 56 L288 78 Q272 230 292 420 L108 420 Q128 230 112 78 Z",
+  tank: "M152 40 Q200 100 248 40 L266 40 Q272 128 306 148 L306 420 L94 420 L94 148 Q128 128 134 40 Z",
+  apron: "M152 50 L248 50 L254 150 Q326 158 318 420 L82 420 Q74 158 146 150 Z",
+  shorts: "M92 70 L308 70 L330 300 L214 312 L200 160 L186 312 L70 300 Z",
+  pants: "M112 40 L288 40 L302 405 L216 405 L200 140 L184 405 L98 405 Z",
+};
+const SHORT_L = "M145 50 L62 88 L34 164 L100 186 L100 76 Z";
+const SHORT_R = "M255 50 L338 88 L366 164 L300 186 L300 76 Z";
+const CAP_L = "M150 56 L80 90 L62 150 L112 166 L112 78 Z";
+const CAP_R = "M250 56 L320 90 L338 150 L288 166 L288 78 Z";
+const LONG_L = "M145 50 L70 86 L26 336 L72 346 L100 176 L100 76 Z";
+const LONG_R = "M255 50 L330 86 L374 336 L328 346 L300 176 L300 76 Z";
+const CUFF_L = "M26 336 L72 346 L67 372 L21 362 Z";
+const CUFF_R = "M374 336 L328 346 L333 372 L379 362 Z";
+
+function GarmentSvg({ shape, body, sleeve, collar, view = "front", className }: Props) {
+  const s = sleeve ?? body;
+  const c = collar ?? body;
+  const stroke = "rgba(0,0,0,0.28)";
+  const short = ["tshirt", "polo"].includes(shape);
+  const long = ["longsleeve", "crewneck", "hoodie", "jacket"].includes(shape);
+  const cap = shape === "babylook";
+  const id = `sh-${shape}`;
+
   return (
-    <div className="sticky top-0 z-40 bg-primary text-primary-foreground text-[11px] sm:text-sm font-semibold py-2 px-3 text-center shadow-md">
-      <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-primary-foreground animate-pulse shadow-sm" />⚡ Produção Expressa 24h Ativa <span className="hidden sm:inline">| Atendimento Imediato para ABC Paulista, SP e Envio Nacional</span></span>
-    </div>
+    <svg viewBox="0 0 400 440" className={className} role="img" aria-label="Peça">
+      <defs>
+        <linearGradient id={id} x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0" stopColor="#000" stopOpacity="0.18" />
+          <stop offset="0.25" stopColor="#fff" stopOpacity="0.06" />
+          <stop offset="0.5" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0.75" stopColor="#fff" stopOpacity="0.06" />
+          <stop offset="1" stopColor="#000" stopOpacity="0.18" />
+        </linearGradient>
+      </defs>
+      
+      {shape === "hoodie" && (
+        <path d="M138 56 Q130 -6 200 -2 Q270 -6 262 56 Q200 30 138 56 Z" fill={c} stroke={stroke} strokeWidth="2" />
+      )}
+      
+      {short && (<><path d={SHORT_L} fill={s} stroke={stroke} strokeWidth="2" /><path d={SHORT_R} fill={s} stroke={stroke} strokeWidth="2" /></>)}
+      {cap && (<><path d={CAP_L} fill={s} stroke={stroke} strokeWidth="2" /><path d={CAP_R} fill={s} stroke={stroke} strokeWidth="2" /></>)}
+      {long && (<>
+        <path d={LONG_L} fill={s} stroke={stroke} strokeWidth="2" />
+        <path d={LONG_R} fill={s} stroke={stroke} strokeWidth="2" />
+        <path d={CUFF_L} fill={c} stroke={stroke} strokeWidth="2" />
+        <path d={CUFF_R} fill={c} stroke={stroke} strokeWidth="2" />
+      </>)}
+      
+      <path d={BODY[shape]} fill={body} stroke={stroke} strokeWidth="2" />
+      <path d={BODY[shape]} fill={`url(#${id})`} />
+
+      {(shape === "crewneck" || shape === "hoodie") && (
+        <rect x="98" y="385" width="204" height="22" fill={c} stroke={stroke} strokeWidth="2" />
+      )}
+      {shape === "crewneck" && <path d="M145 50 Q200 88 255 50 L248 62 Q200 100 152 62 Z" fill={c} stroke={stroke} strokeWidth="1.5" />}
+      {(shape === "tshirt" || shape === "longsleeve" || shape === "babylook") && view === "front" && (
+        <path d={shape === "babylook" ? "M150 56 Q200 90 250 56" : "M145 50 Q200 88 255 50"} fill="none" stroke={c} strokeWidth="7" />
+      )}
+      {shape === "polo" && (<>
+        {view === "front" ? (<>
+          <path d="M145 50 L200 82 L178 104 L132 66 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
+          <path d="M255 50 L200 82 L222 104 L268 66 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
+          <rect x="190" y="82" width="20" height="78" fill={body} stroke={stroke} strokeWidth="1.5" />
+          <circle cx="200" cy="105" r="3" fill={stroke} /><circle cx="200" cy="135" r="3" fill={stroke} />
+        </>) : <path d="M140 52 Q200 40 260 52 L258 68 Q200 58 142 68 Z" fill={c} stroke={stroke} strokeWidth="1.5" />}
+        <path d="M34 164 L100 186 L98 196 L31 174 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
+        <path d="M366 164 L300 186 L302 196 L369 174 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
+      </>)}
+      {shape === "hoodie" && view === "front" && (<>
+        <path d="M138 300 L262 300 L285 380 L115 380 Z" fill="none" stroke={stroke} strokeWidth="2.5" />
+        <line x1="185" y1="70" x2="182" y2="150" stroke={stroke} strokeWidth="3" />
+        <line x1="215" y1="70" x2="218" y2="150" stroke={stroke} strokeWidth="3" />
+      </>)}
+      {shape === "jacket" && (<>
+        <path d="M150 48 L200 60 L250 48 L250 30 Q200 22 150 30 Z" fill={c} stroke={stroke} strokeWidth="2" />
+        {view === "front" && <line x1="200" y1="60" x2="200" y2="412" stroke={stroke} strokeWidth="3" strokeDasharray="4 3" />}
+        {view === "front" && <><line x1="120" y1="260" x2="160" y2="250" stroke={stroke} strokeWidth="2" /><line x1="280" y1="260" x2="240" y2="250" stroke={stroke} strokeWidth="2" /></>}
+      </>)}
+      {shape === "apron" && (<>
+        <path d="M152 50 Q200 -20 248 50" fill="none" stroke={c} strokeWidth="8" />
+        <path d="M82 170 L20 200 M318 170 L380 200" stroke={c} strokeWidth="8" />
+        {view === "front" && <rect x="140" y="270" width="120" height="70" rx="4" fill="none" stroke={stroke} strokeWidth="2" />}
+      </>)}
+      {shape === "shorts" && <rect x="92" y="70" width="216" height="22" fill={c} stroke={stroke} strokeWidth="2" />}
+      {shape === "pants" && (<>
+        <rect x="112" y="40" width="176" height="24" fill={c} stroke={stroke} strokeWidth="2" />
+        <rect x="98" y="385" width="86" height="20" fill={c} stroke={stroke} strokeWidth="2" />
+        <rect x="216" y="385" width="86" height="20" fill={c} stroke={stroke} strokeWidth="2" />
+      </>)}
+    </svg>
   );
 }
 
-export function Header() {
-  return (
-    <header className="border-b border-border bg-background/90 backdrop-blur sticky top-[36px] sm:top-[40px] z-30 shadow-sm transition-all">
-      <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
-        <a href="#topo" className="font-display text-2xl font-extrabold uppercase tracking-wide cursor-pointer hover:scale-105 transition-transform">Inkiri<span className="text-primary">DTF</span></a>
-        <nav className="hidden md:flex gap-6 text-sm font-semibold text-muted-foreground">
-          {[["#como", "Como funciona"], ["#catalogo", "Catálogo"], ["#tecnologia", "DTF x Bordado"], ["#medidas", "Medidas"], ["#faq", "FAQ"]].map(([h, l]) => <a key={h} href={h} className="cursor-pointer transition-colors duration-300 hover:text-primary">{l}</a>)}
-        </nav>
-        <a href="#simulador" className="rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-bold shadow-md cursor-pointer transition-all duration-300 hover:scale-105 hover:brightness-110">Simular</a>
-      </div>
-    </header>
-  );
+type PhotoAsset = { name: string; w: number; h: number }; 
+const PHOTOS: Partial<Record<Shape, { front: PhotoAsset; back?: PhotoAsset }>> = {
+  tshirt: {
+    front: { name: "tshirt-front", w: 1288, h: 1448 },
+    back: { name: "tshirt-back", w: 1291, h: 1448 },
+  },
+  longsleeve: {
+    front: { name: "longsleeve-front", w: 1329, h: 1448 },
+    back: { name: "longsleeve-back", w: 1318, h: 1448 },
+  },
+  polo: {
+    front: { name: "polo-front", w: 1194, h: 1448 },
+    back: { name: "polo-back", w: 1192, h: 1448 },
+  },
+  babylook: {
+    front: { name: "babylook-front", w: 1399, h: 1448 },
+    back: { name: "babylook-back", w: 1396, h: 1448 },
+  },
+  tank: { front: { name: "tank-front", w: 801, h: 1448 } },
+};
+
+const MAX_H = 800; 
+
+type Loaded = { w: number; h: number; shade: Uint8ClampedArray; regions: Uint8ClampedArray };
+const cache = new Map<string, Promise<Loaded>>();
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`Falha ao carregar ${src}`));
+    img.src = src;
+  });
 }
 
-export function Hero() {
-  return (
-    <section id="topo" data-wa="Olá! Preciso de uniformes com urgência. Podem me ajudar?" className="bg-hero relative overflow-hidden">
-      <div className="absolute inset-0 grid-lines" />
-      <div className="relative mx-auto max-w-7xl px-4 py-16 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
-        <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 text-primary px-3 py-1.5 text-xs font-bold uppercase tracking-wider shadow-sm">ABC Paulista · Envio para todo o Brasil</span>
-          <h1 className="mt-5 text-5xl sm:text-6xl lg:text-7xl font-extrabold uppercase leading-[0.95]">Uniformes prontos em <span className="text-primary">24 horas.</span><br />Sem atrasos, sem dor de cabeça.</h1>
-          <p className="mt-6 text-lg font-medium text-muted-foreground max-w-xl">Padronização imediata para empresas e eventos de última hora: estoque inteligente a pronta entrega + personalização in-house com DTF Digital e Bordado Industrial.</p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
-            <a href="#simulador" className="rounded-xl bg-primary text-primary-foreground px-8 py-4 font-bold text-center shadow-glow cursor-pointer transition-all duration-300 hover:scale-105 hover:brightness-110 text-lg">Simular Meu Uniforme</a>
-            <a href={waLink("Olá, equipe Inkiri! Quero um orçamento rápido de uniformes.")} target="_blank" rel="noreferrer" className="rounded-xl border border-border bg-card px-8 py-4 font-bold text-center flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-primary/5 hover:border-primary/50 hover:text-primary shadow-sm text-lg"><MessageCircle className="h-5 w-5" />Orçamento WhatsApp</a>
-          </div>
-        </div>
-        <div className="relative h-[340px] sm:h-[440px] animate-in fade-in zoom-in duration-1000">
-          <Garment shape="polo" body="#ffffff" collar="#1d4ed8" className="absolute left-0 top-6 w-[55%] drop-shadow-2xl -rotate-6 transition-transform hover:rotate-0 duration-500" />
-          <Garment shape="hoodie" body="#111214" collar="#111214" className="absolute right-0 top-0 w-[52%] drop-shadow-2xl rotate-6 transition-transform hover:rotate-0 duration-500" />
-          <Garment shape="tshirt" body="#15803d" className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[50%] drop-shadow-2xl transition-transform hover:-translate-y-4 duration-500" />
-        </div>
-      </div>
-      <div className="relative mx-auto max-w-7xl px-4 pb-12 grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-12 duration-700 delay-300">
-        {[[Zap, "Produção Recorde 24h"], [FileCheck2, "Emissão de Nota Fiscal (CNPJ)"], [Palette, "Sem Limite de Cores (DTF)"], [TrendingDown, "Desconto Progressivo por Volume"]].map(([I, l]) => {
-          const Icon = I as typeof Zap;
-          return <div key={l as string} className="rounded-xl border border-border bg-card/70 backdrop-blur p-5 flex items-center gap-3 shadow-sm hover:border-primary/50 transition-colors cursor-default"><Icon className="h-7 w-7 text-primary shrink-0" /><span className="text-sm font-bold">{l as string}</span></div>;
-        })}
-      </div>
-    </section>
-  );
+function pixels(img: HTMLImageElement, w: number, h: number): Uint8ClampedArray {
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  if (!ctx) throw new Error("Canvas 2D indisponível");
+  ctx.drawImage(img, 0, 0, w, h);
+  return ctx.getImageData(0, 0, w, h).data;
 }
 
-export function Timeline() {
-  const steps = [
-    [MousePointerClick, "Escolha e Simule no Site", "Monte a peça, cores, logo e grade em minutos."],
-    [Warehouse, "Estoque Inteligente", "Peças lisas já prontas na prateleira, sem esperar confecção."],
-    [Factory, "Personalização In-House", "Maquinário próprio de DTF e Bordado Industrial."],
-    [Truck, "Logística Prioritária", "Retirada ou envio expresso em até 24h."],
-  ] as const;
-  return (
-    <section id="como" data-wa="Quero entender como funciona a produção em 24h" className="py-16 md:py-24 bg-card text-foreground border-y border-border">
-      <div className="mx-auto max-w-7xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center text-primary font-display">Como entregamos em 24 horas</h2>
-        <div className="mt-16 grid md:grid-cols-4 gap-8 relative">
-          <div className="hidden md:block absolute top-8 left-[12%] right-[12%] h-0.5 bg-primary/20" />
-          {steps.map(([Icon, t, d], i) => (
-            <div key={t} className="relative text-center group">
-              <div className="mx-auto h-16 w-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center relative shadow-lg group-hover:scale-110 transition-transform duration-300"><Icon className="h-8 w-8" /><span className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-foreground text-background text-sm font-bold flex items-center justify-center border-2 border-card">{i + 1}</span></div>
-              <h3 className="mt-6 text-xl font-bold uppercase text-foreground group-hover:text-primary transition-colors">{t}</h3>
-              <p className="mt-2 text-sm text-muted-foreground font-medium">{d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+function loadAsset(a: PhotoAsset): Promise<Loaded> {
+  let p = cache.get(a.name);
+  if (!p) {
+    const scale = Math.min(1, MAX_H / a.h);
+    const w = Math.round(a.w * scale);
+    const h = Math.round(a.h * scale);
+    p = Promise.all([loadImage(`/garments/${a.name}.webp`), loadImage(`/garments/${a.name}.regions.png`)]).then(
+      ([shadeImg, regImg]) => ({ w, h, shade: pixels(shadeImg, w, h), regions: pixels(regImg, w, h) }),
+    );
+    p.catch(() => cache.delete(a.name)); 
+    cache.set(a.name, p);
+  }
+  return p;
 }
 
-export function Catalog({ onSimulate }: { onSimulate: (id: string) => void }) {
-  const [tab, setTab] = useState<CatalogTab>("todos");
-  const items = CATALOG.filter((c) => tab === "todos" || c.tab.includes(tab));
-  return (
-    <section id="catalogo" data-wa="Quero saber sobre o estoque a pronta-entrega" className="py-16 md:py-24">
-      <div className="mx-auto max-w-7xl px-4">
-        <span className="text-primary font-bold uppercase tracking-widest text-xs">Estoque a pronta-entrega</span>
-        <h2 className="text-4xl md:text-6xl font-bold uppercase font-display mt-2">Campeões de venda</h2>
-        <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
-          {CATALOG_TABS.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold border cursor-pointer transition-all duration-300 hover:scale-105 ${tab === t.id ? "bg-primary text-primary-foreground border-primary shadow-glow" : "border-border bg-card hover:bg-primary/10 hover:text-primary"}`}>{t.label}</button>
-          ))}
-        </div>
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {items.map((c) => {
-            const m = MODELS.find((x) => x.id === c.id)!;
-            return (
-              <article key={c.id} className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col group hover:shadow-xl hover:border-primary/50 transition-all duration-300">
-                <div className="bg-muted aspect-square p-6 overflow-hidden"><Garment shape={m.shape} body={c.color} collar={c.color === "#ffffff" ? "#1f2a44" : "#ffffff"} className="h-full w-full group-hover:scale-105 transition-transform duration-500 drop-shadow-md" /></div>
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="text-xl font-bold uppercase leading-tight font-display">{m.name}</h3>
-                  <p className="text-xs text-primary font-bold mt-1.5 uppercase tracking-wide">{FABRICS[m.fabric].name}</p>
-                  <p className="text-sm text-muted-foreground mt-3 flex-1 font-medium">{c.spec}</p>
-                  <button onClick={() => onSimulate(c.id)} className="mt-5 w-full rounded-xl bg-primary text-primary-foreground py-3.5 text-sm font-bold shadow-md cursor-pointer transition-all duration-300 hover:brightness-110 hover:scale-105">Simular Peça</button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
+function hexToRgb(hex: string): [number, number, number] {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return [255, 255, 255];
+  const n = parseInt(m[1]!, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-export function Compare() {
-  const rows = [
-    ["Custo de tela/matriz", "Zero", "Zero", "Cobra por cor"],
-    ["Fotos e degradês", true, false, false],
-    ["Cores ilimitadas", true, "Até 12 linhas", false],
-    ["Não racha / não descasca", true, true, "Com o tempo"],
-    ["Algodão, sintéticos e impermeáveis", true, "Maioria", "Limitado"],
-    ["Lotes pequenos (10 peças)", true, true, false],
-    ["Acabamento premium", "Alto", "Máximo", "Médio"],
-  ] as const;
-  const cell = (v: string | boolean) => v === true ? <Check className="h-6 w-6 text-primary mx-auto" /> : v === false ? <X className="h-6 w-6 text-destructive mx-auto" /> : <span className="text-sm font-bold">{v}</span>;
-  return (
-    <section id="tecnologia" data-wa="Tenho uma arte colorida para avaliar em DTF" className="py-16 md:py-24 bg-muted border-y border-border">
-      <div className="mx-auto max-w-5xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center font-display">DTF Digital vs. Bordado vs. Serigrafia</h2>
-        <p className="text-center text-muted-foreground font-medium mt-4 max-w-3xl mx-auto text-lg">O DTF da Inkiri não cobra telas, aceita fotos e degradês, não racha e adere em algodão, sintéticos e impermeáveis. O Bordado Computadorizado é a escolha para Polos, Moletons e Corta-Vento com máxima sofisticação.</p>
-        <div className="mt-12 overflow-x-auto rounded-3xl border border-border shadow-lg bg-card">
-          <table className="w-full text-center min-w-[560px]">
-            <thead><tr className="bg-background border-b border-border"><th className="p-5 text-left text-sm text-muted-foreground">Critério Técnico</th><th className="p-5 text-primary font-display text-2xl uppercase bg-primary/5">DTF Inkiri</th><th className="p-5 font-display text-2xl uppercase">Bordado</th><th className="p-5 font-display text-2xl uppercase text-muted-foreground">Serigrafia</th></tr></thead>
-            <tbody>{rows.map(([l, a, b, c]) => <tr key={l} className="border-t border-border hover:bg-muted/30 transition-colors"><td className="p-5 text-left text-sm font-bold">{l}</td><td className="p-5 bg-primary/5">{cell(a)}</td><td className="p-5">{cell(b)}</td><td className="p-5">{cell(c)}</td></tr>)}</tbody>
-          </table>
-        </div>
-        <div className="mt-8 grid md:grid-cols-2 gap-6">
-          <div className="rounded-2xl border-2 border-primary bg-primary/5 p-6 shadow-sm"><b className="text-primary text-lg flex items-center gap-2"><Zap className="h-5 w-5" />Use DTF quando:</b><p className="text-sm font-medium text-muted-foreground mt-2">A arte for colorida, contiver foto, degradê, ou quando o tecido for Dry-Fit, proteção UV ou corta-vento impermeável.</p></div>
-          <div className="rounded-2xl border-2 border-border bg-card p-6 shadow-sm"><b className="text-foreground text-lg flex items-center gap-2"><Layers className="h-5 w-5" />Use Bordado quando:</b><p className="text-sm font-medium text-muted-foreground mt-2">O objetivo for uma imagem institucional corporativa premium (em camisas Polo, Moletons, Jaquetas e Aventais de brim).</p></div>
-        </div>
-      </div>
-    </section>
-  );
-}
+function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: PhotoAsset; body: string; sleeve: string; collar: string; className?: string }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const scale = Math.min(1, MAX_H / asset.h);
+  const w = Math.round(asset.w * scale);
+  const h = Math.round(asset.h * scale);
 
-export function SizeGuide() {
-  const [h, setH] = useState(""); const [w, setW] = useState("");
-  const result = +h > 120 && +w > 30 ? recommendSize(+h, +w) : null;
-  const table = [["PP", 48, 66], ["P", 50, 68], ["M", 53, 71], ["G", 56, 74], ["GG", 59, 77], ["XG", 62, 80]];
-  const baby = [["PP", 40, 58], ["P", 42, 60], ["M", 44, 62], ["G", 46, 64], ["GG", 48, 66], ["XG", 50, 68]];
-  return (
-    <section id="medidas" data-wa="Tenho dúvida sobre os tamanhos dos uniformes" className="py-16 md:py-24">
-      <div className="mx-auto max-w-7xl px-4 grid lg:grid-cols-[1.4fr_1fr] gap-10">
-        <div>
-          <h2 className="text-4xl md:text-6xl font-bold uppercase font-display">Guia de medidas</h2>
-          <div className="mt-8 grid sm:grid-cols-2 gap-6">
-            {[["Tradicional / Unissex", table], ["Baby Look Feminina", baby]].map(([t, rows]) => (
-              <div key={t as string} className="rounded-2xl border border-border overflow-hidden shadow-sm hover:border-primary/50 transition-colors">
-                <p className="bg-muted px-5 py-3 font-bold text-sm border-b border-border">{t as string} (cm)</p>
-                <table className="w-full text-sm text-center"><thead><tr className="text-muted-foreground font-semibold"><th className="py-3">Tam.</th><th>Largura</th><th>Altura</th></tr></thead>
-                  <tbody>{(rows as (string | number)[][]).map((r) => <tr key={r[0]} className={`border-t border-border transition-colors ${result === r[0] ? "bg-primary/10 text-primary font-extrabold" : "hover:bg-muted/50 font-medium"}`}><td className="py-3">{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>)}</tbody></table>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-8 self-start shadow-lg">
-          <h3 className="text-2xl font-bold uppercase flex items-center gap-2 text-primary font-display"><Calculator className="h-7 w-7" />Calculadora de Tamanho</h3>
-          <p className="text-sm font-medium text-muted-foreground mt-2 mb-6">Insira os dados do colaborador para uma recomendação automática.</p>
-          <div className="grid grid-cols-2 gap-4">
-            <label className="text-sm font-bold text-foreground">Altura (cm)<input type="number" inputMode="numeric" value={h} onChange={(e) => setH(e.target.value)} placeholder="175" className="mt-2 w-full rounded-xl bg-background border border-border px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" /></label>
-            <label className="text-sm font-bold text-foreground">Peso (kg)<input type="number" inputMode="numeric" value={w} onChange={(e) => setW(e.target.value)} placeholder="75" className="mt-2 w-full rounded-xl bg-background border border-border px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" /></label>
-          </div>
-          <div className="mt-6 rounded-xl bg-card border border-border p-6 text-center shadow-inner">
-            {result ? <><p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Recomendado</p><p className="font-display text-7xl font-extrabold text-primary mt-2 animate-in zoom-in duration-300">{result}</p></> : <p className="text-sm font-medium text-muted-foreground py-4">Digite altura e peso para ver a recomendação.</p>}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function Portfolio() {
-  const [tab, setTab] = useState<"empresas" | "eventos">("empresas");
-  const data = {
-    empresas: [["Logística ABC", "polo", "#1f2a44"], ["Clínica Vida", "babylook", "#ffffff"], ["Construtora Forte", "jacket", "#3b3f45"], ["Bistrô Santo André", "apron", "#111214"]],
-    eventos: [["Corrida São Bernardo", "tshirt", "#dc2626"], ["Festival de Verão", "tank", "#1d4ed8"], ["Convenção Tech SP", "tshirt", "#15803d"], ["Equipe Trilha UV", "longsleeve", "#8a8d93"]],
-  } as const;
-  const testimonials = [
-    ["Pedimos numa terça à tarde e na quarta cedo a equipe já estava uniformizada. Inacreditável.", "Marina R., RH — Santo André"],
-    ["300 camisetas DTF coloridas para a corrida em 24h, com nota fiscal. Salvaram nosso evento.", "Carlos M., Organizador de eventos"],
-    ["Bordado impecável nas polos e entrega via Sedex para Curitiba no prazo combinado.", "Juliana P., Franquia de Serviços"],
-  ];
-  return (
-    <section id="portfolio" data-wa="Vi o portfólio e quero algo parecido para minha empresa" className="py-16 md:py-24 bg-muted border-y border-border">
-      <div className="mx-auto max-w-7xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center font-display">Quem já confia na Inkiri</h2>
-        <div className="mt-8 flex justify-center gap-3">
-          {([["empresas", "Empresas Padronizadas"], ["eventos", "Eventos Atendidos em 24h"]] as const).map(([k, l]) => (
-            <button key={k} onClick={() => setTab(k)} className={`rounded-full px-6 py-3 text-sm font-bold border cursor-pointer transition-all duration-300 hover:scale-105 ${tab === k ? "bg-primary text-primary-foreground border-primary shadow-md" : "border-border bg-card hover:text-primary hover:border-primary/50"}`}>{l}</button>
-          ))}
-        </div>
-        <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {data[tab].map(([n, s, c]) => (
-            <div key={n} className="rounded-2xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-lg transition-shadow group animate-in fade-in zoom-in duration-500">
-              <div className="bg-background aspect-square p-6"><Garment shape={s} body={c} collar={c === "#ffffff" ? "#15803d" : "#ffffff"} className="h-full w-full group-hover:scale-105 transition-transform duration-500" /></div>
-              <p className="p-4 text-center text-sm font-bold">{n}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-16 grid md:grid-cols-3 gap-6">
-          {testimonials.map(([t, a]) => (
-            <figure key={a} className="rounded-2xl bg-card border border-border p-8 shadow-sm hover:border-primary/50 transition-colors">
-              <div className="flex gap-1 text-warning mb-4">{Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-5 w-5 fill-current" />)}</div>
-              <blockquote className="mt-3 text-base font-medium italic text-foreground">“{t}”</blockquote>
-              <figcaption className="mt-4 text-sm font-bold text-muted-foreground">— {a}</figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function Faq() {
-  const faqs = [
-    ["Quais as vantagens do DTF da Inkiri?", "Sem limite de cores, aceita fotos e degradês, não tem custo de tela/matrizes, é viável a partir de poucas peças e adere com perfeição em algodão, poliéster, poliamida, dry-fit e tecidos impermeáveis."],
-    ["A estampa DTF resiste a lavagens?", "Sim! Com lavagem do avesso e sem o uso de secadora em alta temperatura, a estampa mantém a vibração da cor e a elasticidade por dezenas de lavagens, sem rachar ou desbotar."],
-    ["Quais arquivos de imagem devo enviar?", "Preferencialmente vetor em formato PDF, AI ou CDR. Também aceitamos arquivos PNG com fundo transparente em alta resolução (300 DPI). Nossa equipe técnica revisa toda arte gratuitamente antes de produzir."],
-    ["Vocês enviam uniformes para fora de São Paulo?", "Sim, atendemos todo o Brasil via Sedex ou transportadora parceira com código de rastreio. O nosso prazo de produção in-house continua sendo de 24h; o frete é calculado de forma transparente no fechamento do orçamento."],
-    ["Como funciona a logística expressa no ABC Paulista?", "Para as cidades de Santo André, São Bernardo do Campo, São Caetano do Sul, Diadema, Mauá e proximidades da Grande SP, oferecemos opção de retirada em mãos ou entrega via motoboy express em até 24h após a aprovação da arte."],
-    ["Vocês emitem nota fiscal para empresas?", "Sim, somos uma empresa homologada. Emitimos nota fiscal eletrônica para CNPJ e CPF em 100% dos pedidos faturados."],
-  ];
-  return (
-    <section id="faq" data-wa="Tenho uma dúvida sobre os pedidos" className="py-16 md:py-24 bg-card">
-      <div className="mx-auto max-w-4xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center font-display text-primary">Dúvidas Frequentes</h2>
-        <Accordion type="single" collapsible className="mt-10">
-          {faqs.map(([q, a]) => (
-            <AccordionItem key={q} value={q} className="border-border">
-              <AccordionTrigger className="text-left text-lg font-bold hover:text-primary cursor-pointer transition-colors py-5">{q}</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground font-medium text-base pb-6 leading-relaxed">{a}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
-    </section>
-  );
-}
-
-export function Footer() {
-  return (
-    <footer className="bg-foreground text-background border-t-4 border-primary">
-      <div className="mx-auto max-w-7xl px-4 py-16 grid md:grid-cols-4 gap-10 text-sm">
-        <div>
-          <p className="font-display text-4xl font-extrabold uppercase">Inkiri<span className="text-primary-foreground bg-primary px-1.5 ml-1 rounded-sm">DTF</span></p>
-          <p className="mt-3 font-medium opacity-80 text-base">Uniformes Prontos em 24 Horas.</p>
-        </div>
-        <div className="space-y-3 font-medium">
-          <p className="flex items-center gap-3 text-base"><MapPin className="h-5 w-5 text-primary" />ABC Paulista - SP</p>
-          <p className="opacity-70 ml-8">Envio Nacional Expresso</p>
-        </div>
-        <div className="space-y-4 font-medium">
-          <a href={waLink("Olá, equipe Inkiri!")} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-base cursor-pointer hover:text-primary transition-colors"><Phone className="h-5 w-5 text-primary" />(11) 94088-2448</a>
-          <a href="mailto:contato@inkiri.com.br" className="flex items-center gap-3 text-base cursor-pointer hover:text-primary transition-colors"><Mail className="h-5 w-5 text-primary" />contato@inkiri.com.br</a>
-        </div>
-        <div className="space-y-2 font-medium">
-          <p className="flex items-center gap-3 font-bold text-base mb-3"><Clock className="h-5 w-5 text-primary" />Atendimento</p>
-          <p className="opacity-80">Segunda a Sexta — 08h às 18h</p>
-          <p className="opacity-80">Sábados — 08h às 12h</p>
-        </div>
-      </div>
-      <div className="bg-black/20">
-        <p className="text-center text-xs font-medium opacity-60 py-6">© {new Date().getFullYear()} Inkiri DTF. Todos os direitos reservados.</p>
-      </div>
-    </footer>
-  );
-}
-
-export function FloatingWhatsApp() {
-  const [msg, setMsg] = useState("Olá, equipe Inkiri! Quero um orçamento de uniformes.");
   useEffect(() => {
-    const nodes = document.querySelectorAll<HTMLElement>("[data-wa]");
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) setMsg(e.target.getAttribute("data-wa")!); });
-    }, { rootMargin: "-45% 0px -45% 0px" });
-    nodes.forEach((n) => io.observe(n));
-    return () => io.disconnect();
-  }, []);
+    let cancelled = false;
+    loadAsset(asset)
+      .then(({ w, h, shade, regions }) => {
+        const canvas = ref.current;
+        const ctx = canvas?.getContext("2d");
+        if (cancelled || !canvas || !ctx) return;
+        const B = hexToRgb(body);
+        const S = hexToRgb(sleeve);
+        const C = hexToRgb(collar);
+        const out = ctx.createImageData(w, h);
+        const o = out.data;
+        
+        for (let i = 0; i < o.length; i += 4) {
+          const a = shade[i + 3]!;
+          if (a === 0) continue; 
+          
+          const ws = regions[i]! > 127 ? 1 : 0; 
+          const wc = regions[i + 1]! > 127 ? 1 : 0; 
+          const wb = (ws === 0 && wc === 0) ? 1 : 0;
+          
+          const g = shade[i]! / 255; 
+          o[i] = (B[0] * wb + S[0] * ws + C[0] * wc) * g;
+          o[i + 1] = (B[1] * wb + S[1] * ws + C[1] * wc) * g;
+          o[i + 2] = (B[2] * wb + S[2] * ws + C[2] * wc) * g;
+          o[i + 3] = a;
+        }
+        ctx.putImageData(out, 0, 0);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [asset, body, sleeve, collar]);
+
   return (
-    <a href={waLink(msg)} target="_blank" rel="noreferrer" aria-label="Falar no WhatsApp" title={msg}
-      className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-green-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.5)] cursor-pointer hover:scale-110 transition-transform duration-300">
-      <MessageCircle className="h-8 w-8" />
-      <span className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-30" />
-    </a>
+    <canvas
+      ref={ref}
+      width={w}
+      height={h}
+      role="img"
+      aria-label="Peça"
+      className={`${className ?? ""} object-contain mix-blend-multiply`}
+      style={{ aspectRatio: `${w} / ${h}` }}
+    />
   );
+}
+
+export function Garment(props: Props) {
+  const { shape, body, view = "front", className } = props;
+  const set = PHOTOS[shape];
+  const asset = set ? (view === "back" ? set.back : set.front) : undefined;
+  if (!asset) return <GarmentSvg {...props} />;
+  const sleeve = props.sleeve ?? body;
+  const collar = props.collar ?? body;
+  return <GarmentPhoto asset={asset} body={body} sleeve={sleeve} collar={collar} className={className} />;
 }

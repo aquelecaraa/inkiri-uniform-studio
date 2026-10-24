@@ -52,9 +52,11 @@ function GarmentSvg({ shape, body, sleeve, collar, view = "front", className }: 
           <stop offset="1" stopColor="#000" stopOpacity="0.18" />
         </linearGradient>
       </defs>
+      
       {shape === "hoodie" && (
         <path d="M138 56 Q130 -6 200 -2 Q270 -6 262 56 Q200 30 138 56 Z" fill={c} stroke={stroke} strokeWidth="2" />
       )}
+      
       {short && (<><path d={SHORT_L} fill={s} stroke={stroke} strokeWidth="2" /><path d={SHORT_R} fill={s} stroke={stroke} strokeWidth="2" /></>)}
       {cap && (<><path d={CAP_L} fill={s} stroke={stroke} strokeWidth="2" /><path d={CAP_R} fill={s} stroke={stroke} strokeWidth="2" /></>)}
       {long && (<>
@@ -63,6 +65,7 @@ function GarmentSvg({ shape, body, sleeve, collar, view = "front", className }: 
         <path d={CUFF_L} fill={c} stroke={stroke} strokeWidth="2" />
         <path d={CUFF_R} fill={c} stroke={stroke} strokeWidth="2" />
       </>)}
+      
       <path d={BODY[shape]} fill={body} stroke={stroke} strokeWidth="2" />
       <path d={BODY[shape]} fill={`url(#${id})`} />
 
@@ -198,7 +201,6 @@ function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: Photo
           const a = shade[i + 3]!;
           if (a === 0) continue; 
           
-          // Correção do recorte da máscara: Força limites rígidos para evitar vazamentos
           const ws = regions[i]! > 127 ? 1 : 0; 
           const wc = regions[i + 1]! > 127 ? 1 : 0; 
           const wb = (ws === 0 && wc === 0) ? 1 : 0;
