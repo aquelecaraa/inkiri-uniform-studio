@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import type { Shape } from "@/lib/inkiri";
 
 type Props = {
@@ -31,7 +32,7 @@ const LONG_R = "M255 50 L330 86 L374 336 L328 346 L300 176 L300 76 Z";
 const CUFF_L = "M26 336 L72 346 L67 372 L21 362 Z";
 const CUFF_R = "M374 336 L328 346 L333 372 L379 362 Z";
 
-export function Garment({ shape, body, sleeve, collar, view = "front", className }: Props) {
+function GarmentSvg({ shape, body, sleeve, collar, view = "front", className }: Props) {
   const s = sleeve ?? body;
   const c = collar ?? body;
   const stroke = "rgba(0,0,0,0.28)";
@@ -105,4 +106,150 @@ export function Garment({ shape, body, sleeve, collar, view = "front", className
       </>)}
     </svg>
   );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Peças com FOTO real (arquivos em /public/garments)                 */
+/*                                                                     */
+/*  Cada foto tem:                                                     */
+/*   - {nome}.webp          → sombras/texturas da peça (cinza neutro,  */
+/*                            fundo transparente)                      */
+/*   - {nome}.regions.png   → mapa de regiões: R = mangas,             */
+/*                            G = gola/punhos, resto = corpo           */
+/*  O componente "tinge" a foto multiplicando a cor de cada região.    */
+/*                                                                     */
+/*  Para adicionar um modelo novo: coloque os 2 arquivos em            */
+/*  /public/garments e registre o shape na tabela PHOTOS abaixo.       */
+/*  Shapes sem foto continuam usando o SVG antigo (GarmentSvg).        */
+/* ------------------------------------------------------------------ */
+
+type PhotoAsset = { name: string; w: number; h: number }; // w/h = tamanho original da imagem
+const PHOTOS: Partial<Record<Shape, { front: PhotoAsset; back?: PhotoAsset }>> = {
+  tshirt: {
+    front: { name: "tshirt-front", w: 1288, h: 1448 },
+    back: { name: "tshirt-back", w: 1291, h: 1448 },
+  },
+  longsleeve: {
+    front: { name: "longsleeve-front", w: 1329, h: 1448 },
+    back: { name: "longsleeve-back", w: 1318, h: 1448 },
+  },
+  polo: {
+    front: { name: "polo-front", w: 1194, h: 1448 },
+    back: { name: "polo-back", w: 1192, h: 1448 },
+  },
+  babylook: {
+    front: { name: "babylook-front", w: 1399, h: 1448 },
+    back: { name: "babylook-back", w: 1396, h: 1448 },
+  },
+  // regata: só temos foto da frente; nas costas cai no SVG
+  tank: { front: { name: "tank-front", w: 801, h: 1448 } },
+};
+
+const MAX_H = 800; // resolução interna do canvas (altura). Suficiente p/ tela retina do simulador.
+
+type Loaded = { w: number; h: number; shade: Uint8ClampedArray; regions: Uint8ClampedArray };
+const cache = new Map<string, Promise<Loaded>>();
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`Falha ao carregar ${src}`));
+    img.src = src;
+  });
+}
+
+function pixels(img: HTMLImageElement, w: number, h: number): Uint8ClampedArray {
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  if (!ctx) throw new Error("Canvas 2D indisponível");
+  ctx.drawImage(img, 0, 0, w, h);
+  return ctx.getImageData(0, 0, w, h).data;
+}
+
+function loadAsset(a: PhotoAsset): Promise<Loaded> {
+  let p = cache.get(a.name);
+  if (!p) {
+    const scale = Math.min(1, MAX_H / a.h);
+    const w = Math.round(a.w * scale);
+    const h = Math.round(a.h * scale);
+    p = Promise.all([loadImage(`/garments/${a.name}.webp`), loadImage(`/garments/${a.name}.regions.png`)]).then(
+      ([shadeImg, regImg]) => ({ w, h, shade: pixels(shadeImg, w, h), regions: pixels(regImg, w, h) }),
+    );
+    p.catch(() => cache.delete(a.name)); // permite tentar de novo se falhar
+    cache.set(a.name, p);
+  }
+  return p;
+}
+
+function hexToRgb(hex: string): [number, number, number] {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return [255, 255, 255];
+  const n = parseInt(m[1]!, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: PhotoAsset; body: string; sleeve: string; collar: string; className?: string }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const scale = Math.min(1, MAX_H / asset.h);
+  const w = Math.round(asset.w * scale);
+  const h = Math.round(asset.h * scale);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadAsset(asset)
+      .then(({ w, h, shade, regions }) => {
+        const canvas = ref.current;
+        const ctx = canvas?.getContext("2d");
+        if (cancelled || !canvas || !ctx) return;
+        const B = hexToRgb(body);
+        const S = hexToRgb(sleeve);
+        const C = hexToRgb(collar);
+        const out = ctx.createImageData(w, h);
+        const o = out.data;
+        for (let i = 0; i < o.length; i += 4) {
+          const a = shade[i + 3]!;
+          if (a === 0) continue; // fora da peça: transparente
+          const ws = regions[i]! / 255;
+          const wc = regions[i + 1]! / 255;
+          const wb = Math.max(0, 1 - ws - wc);
+          const g = shade[i]! / 255; // sombra (cinza neutro)
+          o[i] = (B[0] * wb + S[0] * ws + C[0] * wc) * g;
+          o[i + 1] = (B[1] * wb + S[1] * ws + C[1] * wc) * g;
+          o[i + 2] = (B[2] * wb + S[2] * ws + C[2] * wc) * g;
+          o[i + 3] = a;
+        }
+        ctx.putImageData(out, 0, 0);
+      })
+      .catch(() => {
+        /* sem imagem: o canvas fica vazio (ex.: testes em jsdom) */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [asset, body, sleeve, collar]);
+
+  return (
+    <canvas
+      ref={ref}
+      width={w}
+      height={h}
+      role="img"
+      aria-label="Peça"
+      className={`${className ?? ""} object-contain`}
+      style={{ aspectRatio: `${w} / ${h}` }}
+    />
+  );
+}
+
+export function Garment(props: Props) {
+  const { shape, body, view = "front", className } = props;
+  const set = PHOTOS[shape];
+  const asset = set ? (view === "back" ? set.back : set.front) : undefined;
+  if (!asset) return <GarmentSvg {...props} />;
+  const sleeve = props.sleeve ?? body;
+  const collar = props.collar ?? body;
+  return <GarmentPhoto asset={asset} body={body} sleeve={sleeve} collar={collar} className={className} />;
 }
