@@ -184,7 +184,7 @@ function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: Photo
   const w = Math.round(asset.w * scale);
   const h = Math.round(asset.h * scale);
 
-  useEffect(() => {
+useEffect(() => {
     let cancelled = false;
     loadAsset(asset)
       .then(({ w, h, shade, regions }) => {
@@ -201,11 +201,21 @@ function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: Photo
           const a = shade[i + 3]!;
           if (a === 0) continue; 
           
-          const ws = regions[i]! > 127 ? 1 : 0; 
-          const wc = regions[i + 1]! > 127 ? 1 : 0; 
-          const wb = (ws === 0 && wc === 0) ? 1 : 0;
+          // Recupera a suavidade da máscara (anti-aliasing)
+          let ws = regions[i]! / 255; 
+          let wc = regions[i + 1]! / 255; 
           
+          // Normaliza os pesos para evitar estouro de cor e vazamentos nas costuras
+          const sum = ws + wc;
+          if (sum > 1) {
+            ws /= sum;
+            wc /= sum;
+          }
+          const wb = 1 - ws - wc;
+          
+          // Aplica o sombreamento real da foto
           const g = shade[i]! / 255; 
+          
           o[i] = (B[0] * wb + S[0] * ws + C[0] * wc) * g;
           o[i + 1] = (B[1] * wb + S[1] * ws + C[1] * wc) * g;
           o[i + 2] = (B[2] * wb + S[2] * ws + C[2] * wc) * g;

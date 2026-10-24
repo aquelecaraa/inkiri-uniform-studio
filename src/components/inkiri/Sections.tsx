@@ -132,30 +132,33 @@ export function Header() {
 
 export function Hero() {
   return (
-    <section id="topo" data-wa="Olá! Preciso de uniformes com urgência. Podem me ajudar?" className="relative overflow-hidden bg-black text-white">
-      <SilkBackground />
-      <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-background/50 to-background" />
+    <section id="topo" data-wa="Olá! Preciso de uniformes com urgência. Podem me ajudar?" className="relative overflow-hidden bg-background border-b border-border">
+      {/* Fundo leve em CSS puro com Grid Lines sutis */}
+      <div className="absolute inset-0 grid-lines opacity-50" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
       
       <div className="relative z-20 mx-auto max-w-7xl px-4 py-16 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
         <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/20 text-white px-3 py-1.5 text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur">ABC Paulista · Envio para todo o Brasil</span>
-          <h1 className="mt-5 text-5xl sm:text-6xl lg:text-7xl font-extrabold uppercase leading-[0.95] drop-shadow-lg text-white">Uniformes prontos em <span className="text-primary">24 horas.</span><br />Sem atrasos, sem dor de cabeça.</h1>
-          <p className="mt-6 text-lg font-medium text-gray-200 max-w-xl drop-shadow-md">Padronização imediata para empresas e eventos de última hora: estoque inteligente a pronta entrega + personalização in-house com DTF Digital e Bordado Industrial.</p>
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 text-primary px-4 py-1.5 text-xs font-bold uppercase tracking-wider shadow-sm">ABC Paulista · Envio para todo o Brasil</span>
+          <h1 className="mt-5 text-5xl sm:text-6xl lg:text-7xl font-extrabold uppercase leading-[0.95] text-foreground">Uniformes prontos em <span className="text-primary">24 horas.</span><br />Sem atrasos.</h1>
+          <p className="mt-6 text-lg font-medium text-muted-foreground max-w-xl">Padronização imediata para empresas e eventos de última hora: estoque inteligente a pronta entrega + personalização in-house com DTF Digital e Bordado Industrial.</p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <a href="#simulador" className="rounded-xl bg-primary text-primary-foreground px-8 py-4 font-bold text-center shadow-glow cursor-pointer transition-all duration-300 hover:scale-105 hover:brightness-110 text-lg">Simular Meu Uniforme</a>
-            <a href={waLink("Olá, equipe Inkiri! Quero um orçamento rápido de uniformes.")} target="_blank" rel="noreferrer" className="rounded-xl border border-white/20 bg-white/10 backdrop-blur px-8 py-4 font-bold text-center flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-white/20 text-white shadow-sm text-lg"><MessageCircle className="h-5 w-5" />Orçamento WhatsApp</a>
+            <a href={waLink("Olá, equipe Inkiri! Quero um orçamento rápido de uniformes.")} target="_blank" rel="noreferrer" className="rounded-xl border border-border bg-card px-8 py-4 font-bold text-center flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:border-primary/50 text-foreground shadow-sm text-lg"><MessageCircle className="h-5 w-5 text-primary" />Orçamento WhatsApp</a>
           </div>
         </div>
+        
         <div className="relative h-[340px] sm:h-[440px] animate-in fade-in zoom-in duration-1000">
           <Garment shape="polo" body="#ffffff" collar="#1d4ed8" className="absolute left-0 top-6 w-[55%] drop-shadow-2xl -rotate-6 transition-transform hover:rotate-0 duration-500" />
           <Garment shape="hoodie" body="#111214" collar="#111214" className="absolute right-0 top-0 w-[52%] drop-shadow-2xl rotate-6 transition-transform hover:rotate-0 duration-500" />
           <Garment shape="tshirt" body="#15803d" className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[50%] drop-shadow-2xl transition-transform hover:-translate-y-4 duration-500" />
         </div>
       </div>
+      
       <div className="relative z-20 mx-auto max-w-7xl px-4 pb-12 grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-12 duration-700 delay-300">
         {[[Zap, "Produção Recorde 24h"], [FileCheck2, "Emissão de Nota Fiscal (CNPJ)"], [Palette, "Sem Limite de Cores (DTF)"], [TrendingDown, "Desconto Progressivo por Volume"]].map(([I, l]) => {
           const Icon = I as typeof Zap;
-          return <div key={l as string} className="rounded-xl border border-white/10 bg-black/40 backdrop-blur p-5 flex items-center gap-3 shadow-sm hover:border-primary/50 transition-colors cursor-default"><Icon className="h-7 w-7 text-primary shrink-0" /><span className="text-sm font-bold text-white">{l as string}</span></div>;
+          return <div key={l as string} className="rounded-xl border border-border bg-card/80 backdrop-blur p-5 flex items-center gap-3 shadow-sm hover:border-primary/50 transition-colors cursor-default"><Icon className="h-7 w-7 text-primary shrink-0" /><span className="text-sm font-bold text-foreground">{l as string}</span></div>;
         })}
       </div>
     </section>
