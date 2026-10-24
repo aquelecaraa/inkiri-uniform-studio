@@ -138,7 +138,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
           <div className="sticky top-9 z-20 lg:top-20">
             <div className="rounded-2xl bg-card border border-border p-3 shadow-2xl">
               <div ref={stage} onPointerMove={onMove} onPointerUp={() => (drag.current = null)} onPointerDown={() => setSel(null)}
-                className="relative mx-auto aspect-[400/440] max-h-[42vh] lg:max-h-none w-full rounded-xl bg-stage overflow-hidden touch-none select-none">
+                className="@container relative mx-auto aspect-[400/440] max-h-[42vh] lg:max-h-none w-full rounded-xl bg-stage overflow-hidden touch-none select-none">
                 <Garment shape={model.shape} body={body} sleeve={sleeve} collar={collar} view={view} className="absolute inset-0 h-full w-full p-4" />
                 {els.filter((e) => e.view === view).map((e) => (
                   <div key={e.id} onPointerDown={(ev) => onDown(ev, e, "move")}
