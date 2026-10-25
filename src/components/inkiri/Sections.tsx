@@ -1,55 +1,131 @@
 import { useEffect, useState } from "react";
-import { Zap, FileCheck2, Palette, TrendingDown, MousePointerClick, Warehouse, Factory, Truck, MessageCircle, Check, X, MapPin, Phone, Calculator } from "lucide-react";
+import { Zap, FileCheck2, Palette, TrendingDown, MousePointerClick, Warehouse, Factory, Truck, MessageCircle, Check, X, Star, MapPin, Phone, Mail, Clock, Calculator, Sparkles, ShieldCheck } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import workshop from "@/assets/inkiri-workshop.jpg";
 import { Garment } from "./Garment";
 import { CATALOG, CATALOG_TABS, MODELS, FABRICS, recommendSize, waLink, type CatalogTab } from "@/lib/inkiri";
 
-/* ── Tokens de estilo (somente classes Tailwind) ─────────────────────── */
-// Entrada suave (tw-animate-css). "fill-mode-backwards" evita o "flash" quando há delay.
+/* ── Tokens de estilo (Tailwind + Utilitários Luminosos) ─────────────── */
 const ENTER = "animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out fill-mode-backwards motion-reduce:animate-none";
-// Glassmorphism: fundo semitransparente + blur + borda sutil.
-const GLASS = "bg-card/60 backdrop-blur-md border border-border";
-// Microinteração de impacto (botões de conversão / seletores).
-const PRESS = "transition-colors duration-200 motion-reduce:transition-none";
-const PRESS_PRIMARY = `${PRESS} hover:shadow-primary/40`;
+const GLASS = "bg-card/70 backdrop-blur-xl border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.4)]";
+const PRESS = "cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg hover:brightness-110 active:scale-95 disabled:hover:scale-100 disabled:hover:shadow-none disabled:hover:brightness-100";
+const PRESS_PRIMARY = `${PRESS} shadow-glow hover:shadow-[0_0_45px_-5px_oklch(0.65_0.24_255_/_0.85)]`;
 
 export function TopBar() {
-  return <div className="inkiri-topbar bg-primary text-primary-foreground text-xs font-semibold py-2 px-4 text-center"><Zap className="inline h-3.5 w-3.5 mr-2" />Produção expressa 24h <span className="mx-3 opacity-40">/</span> ABC Paulista · Envio nacional</div>;
+  return (
+    <div className="sticky top-0 z-40 bg-gradient-to-r from-blue-700 via-primary to-sky-500 text-primary-foreground text-[11px] sm:text-sm font-bold py-2 px-3 text-center shadow-[0_4px_20px_rgba(37,99,235,0.45)]">
+      <span className="inline-flex items-center gap-2">
+        <span className="h-2.5 w-2.5 rounded-full bg-white animate-ping" />
+        ⚡ Produção Expressa 24h Ativa <span className="hidden sm:inline">| Atendimento Imediato para ABC Paulista, SP e Envio Nacional</span>
+      </span>
+    </div>
+  );
 }
 
 export function Header() {
-  const links = [["#como", "Como funciona"], ["#catalogo", "Coleção"], ["#tecnologia", "Personalização"], ["#medidas", "Medidas"]] as const;
-  return <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-md">
-    <div className="mx-auto max-w-7xl px-4 lg:px-8 h-16 md:h-20 flex items-center justify-between gap-4">
-      <a href="#topo" aria-label="Inkiri DTF — voltar ao topo" className="font-display text-3xl font-extrabold uppercase flex items-baseline gap-1">Inkiri<span className="text-primary text-xl">DTF</span><span className="hidden lg:block ml-4 pl-4 border-l border-border font-sans text-[10px] font-semibold text-muted-foreground">UNIFORMES<br />& PERSONALIZAÇÃO</span></a>
-      <nav aria-label="Principal" className="hidden md:flex gap-6">{links.map(([href,label]) => <a key={href} href={href} className="text-xs font-semibold text-muted-foreground hover:text-primary transition-colors">{label}</a>)}</nav>
-      <Button asChild className="h-10 px-5"><a href="#simulador"><Palette />Criar meu uniforme</a></Button>
-    </div>
-  </header>;
+  const links = [["#como", "Como funciona"], ["#catalogo", "Catálogo"], ["#tecnologia", "DTF x Bordado"], ["#medidas", "Medidas"], ["#faq", "FAQ"]];
+  return (
+    <header className="sticky top-8 sm:top-9 z-30 border-b border-white/15 bg-background/75 backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-700 ease-out motion-reduce:animate-none">
+      <div className="mx-auto max-w-7xl px-4 h-14 md:h-16 flex items-center justify-between gap-4">
+        {/* Logo em dois "balões": Inkiri + DTF com brilho elétrico */}
+        <a href="#topo" aria-label="Inkiri DTF — voltar ao topo" className="flex items-center gap-1.5 shrink-0 transition-all duration-300 ease-out hover:scale-105 hover:brightness-110">
+          <span className="relative rounded-2xl rounded-bl-sm bg-ice px-3.5 py-1 font-display text-lg md:text-xl font-extrabold uppercase leading-none tracking-wide text-ice-foreground shadow-md">
+            Inkiri
+            <span aria-hidden className="absolute -bottom-1.5 left-0 h-3 w-3 bg-ice [clip-path:polygon(0_0,100%_0,0_100%)]" />
+          </span>
+          <span className="rounded-full border-[1.5px] border-sky-300/80 bg-gradient-to-r from-primary to-sky-500 px-3.5 py-1 font-display text-lg md:text-xl font-extrabold uppercase leading-none tracking-wide text-primary-foreground shadow-glow">
+            DTF
+          </span>
+        </a>
+
+        {/* Links em pílulas com borda luminosa (desktop) */}
+        <nav aria-label="Principal" className="hidden md:flex items-center gap-2">
+          {links.map(([h, l]) => (
+            <a key={h} href={h} className="rounded-full border border-white/15 bg-white/[0.03] px-3.5 lg:px-4 py-1.5 text-[11px] lg:text-xs font-semibold text-foreground/90 transition-all duration-300 ease-out hover:border-primary/80 hover:bg-primary/15 hover:text-white hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(59,130,246,0.35)]">
+              {l}
+            </a>
+          ))}
+        </nav>
+
+        {/* CTA de conversão */}
+        <a href="#simulador" className={`btn-shine shrink-0 rounded-full bg-gradient-to-r from-primary to-sky-500 text-primary-foreground px-5 py-2 text-xs md:text-sm font-bold ${PRESS_PRIMARY}`}>
+          Simular Agora
+        </a>
+      </div>
+    </header>
+  );
 }
 
 export function Hero() {
-  return <section id="topo" data-wa="Olá! Preciso de uniformes com urgência. Podem me ajudar?" className="hero-scene relative scroll-mt-24 text-cover-foreground">
-    <img src={workshop} width={1920} height={1024} alt="Polos e camisetas em uma oficina de personalização — imagem ilustrativa" className="absolute inset-0 h-full w-full object-cover hero-photo" />
-    <div className="absolute inset-0 hero-shade" />
-    <div className="relative mx-auto max-w-7xl px-4 lg:px-8 py-14 md:py-20">
-      <p className="flex items-center gap-2 text-xs font-semibold uppercase"><span className="h-2 w-2 bg-primary rounded-full" />Estoque inteligente. Produção própria.</p>
-      <h1 className="mt-6 text-6xl md:text-7xl font-extrabold uppercase leading-[0.96] max-w-xl">Uniformes<br />prontos em<br /><span className="text-cover-accent">24 horas.</span></h1>
-      <p className="mt-6 text-sm md:text-base max-w-md text-cover-foreground/80 leading-relaxed">A identidade da sua equipe, do primeiro detalhe à última peça. DTF digital e bordado para empresas e eventos.</p>
-      <div className="mt-7 flex flex-wrap gap-3">
-        <Button asChild className="h-auto min-h-12 px-6"><a href="#simulador"><Palette />Simular meu uniforme</a></Button>
-        <Button asChild variant="outline" className="h-auto min-h-12 px-5 bg-cover/30 text-cover-foreground border-cover-foreground/35 hover:bg-cover/70 hover:text-cover-foreground"><a href={waLink("Olá, equipe Inkiri! Quero um orçamento rápido de uniformes.")} target="_blank" rel="noreferrer"><MessageCircle />Falar com a Inkiri</a></Button>
+  return (
+    <section id="topo" data-wa="Olá! Preciso de uniformes com urgência. Podem me ajudar?" className="bg-hero relative overflow-hidden scroll-mt-24 border-b border-white/10">
+      {/* Luzes de palco e grade industrial */}
+      <div className="absolute inset-0 grid-lines" />
+      <div aria-hidden className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[420px] w-[780px] rounded-full bg-primary/25 blur-[130px] animate-halo" />
+      <div aria-hidden className="pointer-events-none absolute bottom-0 right-10 h-[360px] w-[360px] rounded-full bg-sky-500/20 blur-[110px] animate-halo" />
+
+      <div className="relative mx-auto max-w-7xl px-4 py-16 md:py-24 grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <span className={`inline-flex items-center gap-2 rounded-full border border-sky-400/40 bg-primary/15 backdrop-blur-md text-sky-300 px-4 py-1.5 text-xs font-bold uppercase tracking-wider shadow-[0_0_25px_rgba(59,130,246,0.3)] ${ENTER}`}>
+            <Sparkles className="h-3.5 w-3.5 text-sky-400" /> ABC Paulista · Envio Expresso para todo o Brasil
+          </span>
+          <h1 className={`mt-6 text-5xl sm:text-6xl lg:text-7xl font-extrabold uppercase leading-[0.93] tracking-tight ${ENTER} delay-100`}>
+            Uniformes prontos em{" "}
+            <span className="bg-gradient-to-r from-sky-300 via-primary to-blue-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.55)]">
+              24 horas.
+            </span>
+            <br />
+            Sem atrasos, sem dor de cabeça.
+          </h1>
+          <p className={`mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed ${ENTER} delay-200`}>
+            Padronização imediata para empresas e eventos de última hora: estoque inteligente a pronta entrega + personalização in-house com <strong className="text-white font-semibold">DTF Digital</strong> e <strong className="text-white font-semibold">Bordado Industrial</strong>.
+          </p>
+          <div className={`mt-8 flex flex-col sm:flex-row gap-3.5 ${ENTER} delay-300`}>
+            <a href="#simulador" className={`btn-shine rounded-xl bg-gradient-to-r from-primary via-blue-600 to-sky-500 text-primary-foreground px-8 py-4 font-bold text-center text-base ${PRESS_PRIMARY}`}>
+              Simular Meu Uniforme Agora
+            </a>
+            <a href={waLink("Olá, equipe Inkiri! Quero um orçamento rápido de uniformes.")} target="_blank" rel="noreferrer" className={`rounded-xl border border-white/20 bg-white/[0.06] backdrop-blur-xl px-7 py-4 font-bold text-center flex items-center justify-center gap-2 hover:bg-white/10 hover:border-sky-400/50 ${PRESS}`}>
+              <MessageCircle className="h-5 w-5 text-sky-400" />Orçamento Rápido no WhatsApp
+            </a>
+          </div>
+        </div>
+
+        {/* Vitrine Flutuante 100% Fotográfica (Polo, Manga Longa UV e Camiseta) */}
+        <div className={`relative h-[370px] sm:h-[460px] ${ENTER} delay-200`}>
+          {/* Halo luminoso claro atrás das camisas para destacar as fotos */}
+          <div aria-hidden className="absolute inset-6 rounded-3xl bg-stage shadow-[0_0_80px_rgba(59,130,246,0.35)] border border-white/30 overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(59,130,246,0.18),transparent_65%)]" />
+          </div>
+
+          <Garment shape="polo" body="#1f2a44" collar="#ffffff" className="animate-float-left absolute left-2 top-8 w-[54%] drop-shadow-[0_25px_25px_rgba(0,0,0,0.45)]" />
+          <Garment shape="longsleeve" body="#ffffff" collar="#1d4ed8" className="animate-float-right absolute right-2 top-6 w-[52%] drop-shadow-[0_25px_25px_rgba(0,0,0,0.45)]" />
+          <Garment shape="tshirt" body="#1d4ed8" collar="#ffffff" className="animate-float-center absolute left-1/2 bottom-3 w-[52%] drop-shadow-[0_30px_30px_rgba(0,0,0,0.55)]" />
+
+          {/* Badges Flutuantes de Especificação */}
+          <div className="absolute left-4 top-4 rounded-full bg-slate-950/85 backdrop-blur-md border border-sky-400/40 px-3.5 py-1.5 text-[11px] font-bold text-sky-300 shadow-lg flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-sky-400 animate-ping" /> Alta Definição DTF 300 DPI
+          </div>
+          <div className="absolute right-4 bottom-4 rounded-full bg-slate-950/85 backdrop-blur-md border border-primary/50 px-3.5 py-1.5 text-[11px] font-bold text-white shadow-lg flex items-center gap-1.5">
+            <ShieldCheck className="h-3.5 w-3.5 text-sky-400" /> Estoque Real · Pronta Entrega
+          </div>
+        </div>
       </div>
-      <p className="mt-6 text-[11px] text-cover-foreground/70">A partir de 10 peças · Prazo sujeito à aprovação da arte e disponibilidade</p>
-    </div>
-    <div className="relative border-t border-cover-foreground/20 bg-cover/65">
-      <div className="mx-auto max-w-7xl grid grid-cols-2 md:grid-cols-4 px-4 lg:px-8 py-5 gap-4">
-        {[[Zap,"Produção expressa"],[FileCheck2,"Nota fiscal"],[Palette,"DTF & bordado"],[Truck,"Envio para todo o Brasil"]].map(([I,l]) => {const Icon=I as typeof Zap; return <div key={l as string} className="flex items-center gap-2 text-xs font-semibold"><Icon className="h-4 w-4 text-cover-accent shrink-0" />{l as string}</div>})}
+
+      {/* Cards de diferencial com brilho no hover */}
+      <div className={`relative mx-auto max-w-7xl px-4 pb-14 grid grid-cols-2 md:grid-cols-4 gap-3.5 ${ENTER} delay-500`}>
+        {[[Zap, "Produção Recorde 24h"], [FileCheck2, "Emissão de Nota Fiscal (CNPJ)"], [Palette, "Sem Limite de Cores (DTF)"], [TrendingDown, "Desconto Progressivo por Volume"]].map(([I, l]) => {
+          const Icon = I as typeof Zap;
+          return (
+            <div key={l as string} className="glow-card rounded-2xl border border-white/15 bg-card/65 backdrop-blur-xl p-4.5 flex items-center gap-3.5 hover:-translate-y-1">
+              <div className="h-11 w-11 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(37,99,235,0.35)]">
+                <Icon className="h-5 w-5 text-sky-400" />
+              </div>
+              <span className="text-sm font-bold leading-snug">{l as string}</span>
+            </div>
+          );
+        })}
       </div>
-    </div>
-  </section>;
+    </section>
+  );
 }
 
 export function Timeline() {
@@ -60,16 +136,22 @@ export function Timeline() {
     [Truck, "Logística Prioritária", "Retirada ou envio expresso em até 24h."],
   ] as const;
   return (
-    <section id="como" data-wa="Quero entender como funciona a produção em 24h" className={`py-16 md:py-24 bg-ice text-ice-foreground scroll-mt-24 ${ENTER}`}>
+    <section id="como" data-wa="Quero entender como funciona a produção em 24h" className={`relative py-16 md:py-24 bg-ice text-ice-foreground scroll-mt-24 overflow-hidden ${ENTER}`}>
       <div className="mx-auto max-w-7xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center">Como entregamos em 24 horas</h2>
-        <div className="mt-12 grid md:grid-cols-4 gap-6 relative">
-          <div className="hidden md:block absolute top-8 left-[12%] right-[12%] h-0.5 bg-ice-foreground/15" />
+        <div className="text-center">
+          <span className="inline-block rounded-full bg-primary/10 border border-primary/30 text-primary px-3.5 py-1 text-xs font-extrabold uppercase tracking-widest">Fluxo Industrial Express</span>
+          <h2 className="mt-2 text-4xl md:text-6xl font-extrabold uppercase text-center">Como entregamos em 24 horas</h2>
+        </div>
+        <div className="mt-14 grid md:grid-cols-4 gap-6 relative">
+          <div className="hidden md:block absolute top-9 left-[12%] right-[12%] h-1 rounded-full bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
           {steps.map(([Icon, t, d], i) => (
-            <div key={t} className="group relative text-center">
-              <div className="mx-auto h-16 w-16 rounded-lg bg-ice-foreground text-primary flex items-center justify-center relative shadow-lg transition-transform duration-300 ease-out group-hover:scale-110"><Icon className="h-7 w-7" /><span className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">{i + 1}</span></div>
-              <h3 className="mt-4 text-2xl font-bold uppercase">{t}</h3>
-              <p className="mt-1 text-sm opacity-70">{d}</p>
+            <div key={t} className="group relative text-center rounded-2xl bg-white p-6 shadow-xl shadow-slate-900/5 border border-slate-200/80 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/50">
+              <div className="mx-auto h-16 w-16 rounded-2xl bg-ice-foreground text-sky-400 flex items-center justify-center relative shadow-lg transition-transform duration-300 ease-out group-hover:scale-110 group-hover:shadow-glow">
+                <Icon className="h-7 w-7" />
+                <span className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-gradient-to-br from-primary to-sky-500 text-primary-foreground text-sm font-extrabold flex items-center justify-center shadow-md">{i + 1}</span>
+              </div>
+              <h3 className="mt-5 text-2xl font-extrabold uppercase">{t}</h3>
+              <p className="mt-1.5 text-sm text-slate-600 font-medium">{d}</p>
             </div>
           ))}
         </div>
@@ -82,31 +164,33 @@ export function Catalog({ onSimulate }: { onSimulate: (id: string) => void }) {
   const [tab, setTab] = useState<CatalogTab>("todos");
   const items = CATALOG.filter((c) => tab === "todos" || c.tab.includes(tab));
   return (
-    <section id="catalogo" data-wa="Quero saber sobre o estoque a pronta-entrega" className={`py-16 md:py-24 scroll-mt-24 ${ENTER}`}>
-      <div className="mx-auto max-w-7xl px-4">
-        <span className="text-primary font-semibold uppercase tracking-widest text-xs">Estoque a pronta-entrega</span>
-        <h2 className="text-4xl md:text-6xl font-bold uppercase">Uma peça para cada equipe</h2>
+    <section id="catalogo" data-wa="Quero saber sobre o estoque a pronta-entrega" className={`relative py-16 md:py-24 scroll-mt-24 ${ENTER}`}>
+      <div aria-hidden className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-primary/15 blur-[130px]" />
+      <div className="relative mx-auto max-w-7xl px-4">
+        <span className="text-sky-400 font-bold uppercase tracking-widest text-xs">Estoque a pronta-entrega</span>
+        <h2 className="text-4xl md:text-6xl font-extrabold uppercase mt-1">Campeões de venda</h2>
         <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
           {CATALOG_TABS.map((t) => (
-            <Button variant="ghost" key={t.id} onClick={() => setTab(t.id)} className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold border ${PRESS} ${tab === t.id ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30" : "border-border bg-card/60 backdrop-blur-md hover:bg-accent"}`}>{t.label}</Button>
+            <button key={t.id} onClick={() => setTab(t.id)} className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold border ${PRESS} ${tab === t.id ? "bg-gradient-to-r from-primary to-sky-500 text-primary-foreground border-sky-400 shadow-glow" : "border-white/15 bg-card/70 backdrop-blur-md hover:border-primary/50 hover:bg-accent"}`}>{t.label}</button>
           ))}
         </div>
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {items.map((c) => {
-            const m = MODELS.find((x) => x.id === c.id);
-            if (!m) return null;
+            const m = MODELS.find((x) => x.id === c.id)!;
             return (
-              <article key={c.id} className="group rounded-lg border border-border bg-card/60 backdrop-blur-md overflow-hidden flex flex-col transition-all duration-500 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-2xl hover:shadow-foreground/5">
-                <div className="bg-stage aspect-square p-6 overflow-hidden">
-                  <div className="h-full w-full transition-transform duration-500 group-hover:scale-105">
-                    <Garment shape={m.shape} body={c.color} collar={c.color === "#ffffff" ? "#1f2a44" : "#ffffff"} className="h-full w-full" />
+              <article key={c.id} className="glow-card group rounded-2xl border border-white/15 bg-card/75 backdrop-blur-xl overflow-hidden flex flex-col hover:-translate-y-2">
+                <div className="bg-stage aspect-square p-6 overflow-hidden relative">
+                  <div className="h-full w-full transition-transform duration-500 group-hover:scale-108">
+                    <Garment shape={m.shape} body={c.color} collar={c.color === "#ffffff" ? "#1f2a44" : "#ffffff"} className="h-full w-full drop-shadow-xl" />
                   </div>
                 </div>
-                <div className="p-4 flex flex-col flex-1">
-                  <h3 className="text-xl font-bold uppercase leading-tight">{m.name}</h3>
-                  <p className="text-xs text-primary font-semibold mt-1">{FABRICS[m.fabric].name}</p>
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="text-xl font-extrabold uppercase leading-tight">{m.name}</h3>
+                  <p className="text-xs text-sky-400 font-bold mt-1 uppercase tracking-wider">{FABRICS[m.fabric].name}</p>
                   <p className="text-sm text-muted-foreground mt-2 flex-1">{c.spec}</p>
-                  <Button onClick={() => onSimulate(c.id)} className={`mt-4 h-auto whitespace-normal rounded-lg py-2.5 text-sm font-bold ${PRESS_PRIMARY}`}>Simular nesta peça</Button>
+                  <button onClick={() => onSimulate(c.id)} className={`btn-shine mt-4 rounded-xl bg-gradient-to-r from-primary to-sky-500 text-primary-foreground py-3 text-sm font-bold ${PRESS_PRIMARY}`}>
+                    Simular Minha Logo Nesta Peça
+                  </button>
                 </div>
               </article>
             );
@@ -127,21 +211,43 @@ export function Compare() {
     ["Lotes pequenos (10 peças)", true, true, false],
     ["Acabamento premium", "Alto", "Máximo", "Médio"],
   ] as const;
-  const cell = (v: string | boolean) => v === true ? <Check className="h-5 w-5 text-primary mx-auto" /> : v === false ? <X className="h-5 w-5 text-destructive mx-auto" /> : <span className="text-sm">{v}</span>;
+  const cell = (v: string | boolean) => v === true ? <Check className="h-5 w-5 text-sky-400 mx-auto drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]" /> : v === false ? <X className="h-5 w-5 text-destructive mx-auto" /> : <span className="text-sm font-semibold">{v}</span>;
   return (
-    <section id="tecnologia" data-wa="Tenho uma arte colorida para avaliar em DTF" className={`py-16 md:py-24 bg-card border-y border-border scroll-mt-24 ${ENTER}`}>
+    <section id="tecnologia" data-wa="Tenho uma arte colorida para avaliar em DTF" className={`py-16 md:py-24 bg-card/60 border-y border-white/10 scroll-mt-24 ${ENTER}`}>
       <div className="mx-auto max-w-5xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center">DTF Digital vs. Bordado vs. Serigrafia</h2>
+        <h2 className="text-4xl md:text-6xl font-extrabold uppercase text-center">DTF Digital vs. Bordado vs. Serigrafia</h2>
         <p className="text-center text-muted-foreground mt-3 max-w-2xl mx-auto">O DTF da Inkiri não cobra telas, aceita fotos e degradês, não racha e adere em algodão, sintéticos e impermeáveis. O Bordado Computadorizado é a escolha para Polos, Moletons e Corta-Vento com máxima sofisticação.</p>
-        <div className="mt-10 overflow-x-auto rounded-lg border border-border bg-card/40 backdrop-blur-md shadow-xl shadow-foreground/5">
+        <div className="mt-10 overflow-x-auto rounded-2xl border border-primary/30 bg-card/80 backdrop-blur-xl shadow-[0_0_50px_-15px_rgba(37,99,235,0.35)]">
           <table className="w-full text-center min-w-[560px]">
-            <thead><tr className="bg-muted"><th className="p-4 text-left text-sm">Critério</th><th className="p-4 text-primary font-display text-xl uppercase">DTF Inkiri</th><th className="p-4 font-display text-xl uppercase">Bordado</th><th className="p-4 font-display text-xl uppercase text-muted-foreground">Serigrafia</th></tr></thead>
-            <tbody>{rows.map(([l, a, b, c]) => <tr key={l} className="border-t border-border"><td className="p-4 text-left text-sm font-semibold">{l}</td><td className="p-4 bg-primary/5">{cell(a)}</td><td className="p-4">{cell(b)}</td><td className="p-4">{cell(c)}</td></tr>)}</tbody>
+            <thead>
+              <tr className="bg-white/5 border-b border-white/10">
+                <th className="p-4 text-left text-sm uppercase tracking-wider text-muted-foreground">Critério</th>
+                <th className="p-4 text-sky-400 font-display text-2xl uppercase bg-primary/15 border-x border-primary/30">⚡ DTF Inkiri</th>
+                <th className="p-4 font-display text-xl uppercase">Bordado</th>
+                <th className="p-4 font-display text-xl uppercase text-muted-foreground">Serigrafia</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(([l, a, b, c]) => (
+                <tr key={l} className="border-t border-white/10 hover:bg-white/[0.03] transition-colors">
+                  <td className="p-4 text-left text-sm font-bold">{l}</td>
+                  <td className="p-4 bg-primary/10 border-x border-primary/25 font-bold text-white">{cell(a)}</td>
+                  <td className="p-4">{cell(b)}</td>
+                  <td className="p-4 text-muted-foreground">{cell(c)}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
         <div className="mt-6 grid md:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-primary/40 bg-primary/10 backdrop-blur-md p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg"><b className="text-primary">Use DTF quando:</b><p className="text-sm text-muted-foreground mt-1">a arte é colorida, tem foto, degradê, patrocinadores ou o tecido é Dry-Fit, UV ou impermeável.</p></div>
-          <div className="rounded-lg border border-border bg-muted/50 backdrop-blur-md p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg"><b>Use Bordado quando:</b><p className="text-sm text-muted-foreground mt-1">o objetivo é imagem institucional premium em Polos, Moletons, Jaquetas e Aventais.</p></div>
+          <div className="glow-card rounded-2xl border border-primary/50 bg-primary/15 backdrop-blur-md p-6 hover:-translate-y-1">
+            <b className="text-sky-300 text-lg">⚡ Use DTF quando:</b>
+            <p className="text-sm text-muted-foreground mt-1.5">a arte é colorida, tem foto, degradê, patrocinadores ou o tecido é Dry-Fit, UV ou impermeável.</p>
+          </div>
+          <div className="glow-card rounded-2xl border border-white/15 bg-white/5 backdrop-blur-md p-6 hover:-translate-y-1">
+            <b className="text-lg">🧵 Use Bordado quando:</b>
+            <p className="text-sm text-muted-foreground mt-1.5">o objetivo é imagem institucional premium em Polos, Moletons, Jaquetas e Aventais.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -157,25 +263,33 @@ export function SizeGuide() {
     <section id="medidas" data-wa="Tenho dúvida sobre os tamanhos dos uniformes" className={`py-16 md:py-24 scroll-mt-24 ${ENTER}`}>
       <div className="mx-auto max-w-7xl px-4 grid lg:grid-cols-[1.4fr_1fr] gap-8">
         <div>
-          <h2 className="text-4xl md:text-6xl font-bold uppercase">Guia de medidas</h2>
+          <h2 className="text-4xl md:text-6xl font-extrabold uppercase">Guia de medidas</h2>
           <div className="mt-6 grid sm:grid-cols-2 gap-4">
             {[["Tradicional / Unissex", table], ["Baby Look", baby]].map(([t, rows]) => (
-              <div key={t as string} className="rounded-lg border border-border bg-card/40 backdrop-blur-md overflow-hidden shadow-xl shadow-foreground/5">
-                <p className="bg-muted/50 px-4 py-2 font-semibold text-sm">{t as string} (cm)</p>
-                <table className="w-full text-sm text-center"><thead><tr className="text-muted-foreground"><th className="py-2">Tam.</th><th>Largura</th><th>Altura</th></tr></thead>
-                  <tbody>{(rows as (string | number)[][]).map((r) => <tr key={r[0]} className={`border-t border-border ${result === r[0] ? "bg-primary/15 text-primary font-bold" : ""}`}><td className="py-2 font-semibold">{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>)}</tbody></table>
+              <div key={t as string} className="rounded-2xl border border-white/15 bg-card/60 backdrop-blur-xl overflow-hidden shadow-xl">
+                <p className="bg-primary/15 border-b border-white/10 px-4 py-2.5 font-bold text-sm text-sky-300">{t as string} (cm)</p>
+                <table className="w-full text-sm text-center">
+                  <thead><tr className="text-muted-foreground"><th className="py-2.5">Tam.</th><th>Largura</th><th>Altura</th></tr></thead>
+                  <tbody>
+                    {(rows as (string | number)[][]).map((r) => (
+                      <tr key={r[0]} className={`border-t border-white/10 transition-colors ${result === r[0] ? "bg-primary/25 text-sky-300 font-extrabold" : ""}`}>
+                        <td className="py-2.5 font-bold">{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ))}
           </div>
         </div>
-        <div className={`rounded-lg ${GLASS} shadow-xl shadow-foreground/5 p-6 self-start`}>
-          <h3 className="text-2xl font-bold uppercase flex items-center gap-2"><Calculator className="h-6 w-6 text-primary" />Calculadora de tamanho ideal</h3>
+        <div className={`glow-card rounded-2xl ${GLASS} p-6 self-start`}>
+          <h3 className="text-2xl font-extrabold uppercase flex items-center gap-2"><Calculator className="h-6 w-6 text-sky-400" />Calculadora de tamanho ideal</h3>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <label className="text-sm font-semibold">Altura (cm)<input type="number" inputMode="numeric" value={h} onChange={(e) => setH(e.target.value)} placeholder="175" className="mt-1 w-full rounded-lg bg-muted/50 border border-border outline-none transition-all duration-300 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 px-3 py-2.5" /></label>
-            <label className="text-sm font-semibold">Peso (kg)<input type="number" inputMode="numeric" value={w} onChange={(e) => setW(e.target.value)} placeholder="75" className="mt-1 w-full rounded-lg bg-muted/50 border border-border outline-none transition-all duration-300 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 px-3 py-2.5" /></label>
+            <label className="text-sm font-semibold">Altura (cm)<input type="number" inputMode="numeric" value={h} onChange={(e) => setH(e.target.value)} placeholder="175" className="mt-1 w-full rounded-lg bg-white/5 border border-white/15 outline-none transition-all duration-300 focus:border-sky-400 focus:ring-2 focus:ring-primary/40 px-3 py-2.5" /></label>
+            <label className="text-sm font-semibold">Peso (kg)<input type="number" inputMode="numeric" value={w} onChange={(e) => setW(e.target.value)} placeholder="75" className="mt-1 w-full rounded-lg bg-white/5 border border-white/15 outline-none transition-all duration-300 focus:border-sky-400 focus:ring-2 focus:ring-primary/40 px-3 py-2.5" /></label>
           </div>
-          <div className="mt-5 rounded-lg bg-muted p-5 text-center">
-            {result ? <><p className="text-sm text-muted-foreground">Tamanho recomendado</p><p className="font-display text-7xl font-extrabold text-primary">{result}</p></> : <p className="text-sm text-muted-foreground">Digite altura e peso para ver a recomendação.</p>}
+          <div className="mt-5 rounded-xl bg-primary/10 border border-primary/30 p-5 text-center">
+            {result ? <><p className="text-sm text-sky-300 font-semibold">Tamanho recomendado</p><p className="font-display text-7xl font-extrabold text-white drop-shadow-[0_0_20px_rgba(59,130,246,0.7)]">{result}</p></> : <p className="text-sm text-muted-foreground">Digite altura e peso para ver a recomendação.</p>}
           </div>
         </div>
       </div>
@@ -186,32 +300,47 @@ export function SizeGuide() {
 export function Portfolio() {
   const [tab, setTab] = useState<"empresas" | "eventos">("empresas");
   const data = {
-    empresas: [["Logística ABC", "polo", "#1f2a44"], ["Clínica Vida", "babylook", "#ffffff"], ["Construtora Forte", "jacket", "#3b3f45"], ["Bistrô Santo André", "apron", "#111214"]],
+    empresas: [["Logística ABC", "polo", "#1f2a44"], ["Clínica Vida", "babylook", "#ffffff"], ["Engenharia Forte", "longsleeve", "#3b3f45"], ["Bistrô Santo André", "tshirt", "#111214"]],
     eventos: [["Corrida São Bernardo", "tshirt", "#dc2626"], ["Festival de Verão", "tank", "#1d4ed8"], ["Convenção Tech SP", "tshirt", "#15803d"], ["Equipe Trilha UV", "longsleeve", "#8a8d93"]],
   } as const;
+  const testimonials = [
+    ["Pedimos numa terça à tarde e na quarta cedo a equipe já estava uniformizada. Inacreditável.", "Marina R., RH — Santo André"],
+    ["300 camisetas DTF coloridas para a corrida em 24h, com nota fiscal. Salvaram nosso evento.", "Carlos M., Organizador de eventos"],
+    ["Bordado impecável nas polos e entrega via Sedex para Curitiba no prazo combinado.", "Juliana P., Franquia de Serviços"],
+  ];
   return (
-    <section id="portfolio" data-wa="Vi o portfólio e quero algo parecido para minha empresa" className={`py-16 md:py-24 bg-card border-y border-border scroll-mt-24 ${ENTER}`}>
+    <section id="portfolio" data-wa="Vi o portfólio e quero algo parecido para minha empresa" className={`py-16 md:py-24 bg-card/50 border-y border-white/10 scroll-mt-24 ${ENTER}`}>
       <div className="mx-auto max-w-7xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center">Possibilidades de personalização</h2>
-        <p className="mt-3 text-center text-sm text-muted-foreground">Exemplos ilustrativos de aplicação, não projetos de clientes.</p>
+        <h2 className="text-4xl md:text-6xl font-extrabold uppercase text-center">Quem já confia na Inkiri</h2>
         <div className="mt-6 flex justify-center gap-2">
-          {([["empresas", "Empresas"], ["eventos", "Eventos"]] as const).map(([k, l]) => (
-            <Button variant="ghost" key={k} onClick={() => setTab(k)} className={`rounded-full px-5 py-2 text-sm font-semibold border ${PRESS} ${tab === k ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30" : "border-border bg-card/60 backdrop-blur-md"}`}>{l}</Button>
+          {([["empresas", "Empresas Padronizadas"], ["eventos", "Eventos Atendidos em 24h"]] as const).map(([k, l]) => (
+            <button key={k} onClick={() => setTab(k)} className={`rounded-full px-5 py-2.5 text-sm font-bold border ${PRESS} ${tab === k ? "bg-gradient-to-r from-primary to-sky-500 text-primary-foreground border-sky-400 shadow-glow" : "border-white/15 bg-card/60 backdrop-blur-md"}`}>{l}</button>
           ))}
         </div>
-        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-5">
           {data[tab].map(([n, s, c]) => (
-            <div key={n} className="group rounded-lg overflow-hidden border border-border bg-card/40 backdrop-blur-md transition-all duration-500 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-2xl hover:shadow-foreground/5">
+            <div key={n} className="glow-card group rounded-2xl overflow-hidden border border-white/15 bg-card/70 backdrop-blur-xl hover:-translate-y-1.5">
               <div className="bg-stage aspect-square p-6 overflow-hidden">
-                <div className="h-full w-full transition-transform duration-500 group-hover:scale-105">
-                  <Garment shape={s} body={c} collar={c === "#ffffff" ? "#15803d" : "#ffffff"} className="h-full w-full" />
+                <div className="h-full w-full transition-transform duration-500 group-hover:scale-108">
+                  <Garment shape={s} body={c} collar={c === "#ffffff" ? "#1d4ed8" : "#ffffff"} className="h-full w-full drop-shadow-xl" />
                 </div>
               </div>
-              <p className="p-3 text-sm font-semibold">{n}</p>
+              <div className="p-3.5 flex items-center justify-between">
+                <p className="text-sm font-bold">{n}</p>
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-primary/20 text-sky-300 border border-primary/30">24h</span>
+              </div>
             </div>
           ))}
         </div>
-
+        <div className="mt-12 grid md:grid-cols-3 gap-5">
+          {testimonials.map(([t, a]) => (
+            <figure key={a} className="glow-card rounded-2xl bg-card/70 backdrop-blur-xl border border-white/15 p-6 hover:-translate-y-1">
+              <div className="flex gap-1 text-warning">{Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div>
+              <blockquote className="mt-3 text-sm leading-relaxed">“{t}”</blockquote>
+              <figcaption className="mt-3 text-xs font-bold text-sky-400">{a}</figcaption>
+            </figure>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -225,14 +354,17 @@ export function Faq() {
     ["Vocês enviam para todo o Brasil?", "Sim, via Sedex ou transportadora com código de rastreio. O prazo de produção continua de 24h e o frete é calculado no orçamento."],
     ["Como funciona a logística expressa no ABC Paulista?", "Para Santo André, São Bernardo, São Caetano, Diadema, Mauá e Grande SP oferecemos retirada no local ou entrega expressa em até 24h após aprovação da arte."],
     ["Emitem nota fiscal?", "Sim, emitimos nota fiscal para CNPJ e CPF em todos os pedidos."],
-  ] as const;
+  ];
   return (
     <section id="faq" data-wa="Tenho uma dúvida sobre os pedidos" className={`py-16 md:py-24 scroll-mt-24 ${ENTER}`}>
       <div className="mx-auto max-w-3xl px-4">
-        <h2 className="text-4xl md:text-6xl font-bold uppercase text-center">Perguntas frequentes</h2>
-        <Accordion type="single" collapsible className="mt-8">
+        <h2 className="text-4xl md:text-6xl font-extrabold uppercase text-center">Perguntas frequentes</h2>
+        <Accordion type="single" collapsible className="mt-8 space-y-2">
           {faqs.map(([q, a]) => (
-            <AccordionItem key={q} value={q}><AccordionTrigger className="text-left text-base">{q}</AccordionTrigger><AccordionContent className="text-muted-foreground">{a}</AccordionContent></AccordionItem>
+            <AccordionItem key={q} value={q} className="rounded-xl border border-white/15 bg-card/50 px-4">
+              <AccordionTrigger className="text-left text-base font-bold hover:text-sky-400">{q}</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">{a}</AccordionContent>
+            </AccordionItem>
           ))}
         </Accordion>
       </div>
@@ -242,15 +374,18 @@ export function Faq() {
 
 export function Footer() {
   return (
-    <footer className="bg-ice text-ice-foreground">
+    <footer className="bg-ice text-ice-foreground border-t-4 border-primary">
       <div className="mx-auto max-w-7xl px-4 py-12 grid md:grid-cols-4 gap-8 text-sm">
-        <div><p className="font-display text-3xl font-extrabold uppercase">Inkiri<span className="text-primary-foreground bg-primary px-1 ml-1">DTF</span></p><p className="mt-2 opacity-70">Uniformes Prontos em 24 Horas.</p></div>
-        <div className="space-y-2"><p className="flex items-center gap-2"><MapPin className="h-4 w-4" />ABC Paulista - SP</p><p className="opacity-70">Envio para todo o Brasil</p></div>
-        <div className="space-y-2">
-          <a href={waLink("Olá, equipe Inkiri!")} target="_blank" rel="noreferrer" className="flex items-center gap-2"><Phone className="h-4 w-4" />(11) 94088-2448</a>
-
+        <div>
+          <p className="font-display text-3xl font-extrabold uppercase">Inkiri<span className="text-primary-foreground bg-primary px-1.5 py-0.5 ml-1 rounded">DTF</span></p>
+          <p className="mt-2 opacity-75 font-medium">Uniformes Prontos em 24 Horas.</p>
         </div>
-        <div><a href="#simulador" className="font-semibold text-primary">Criar meu uniforme →</a></div>
+        <div className="space-y-2"><p className="flex items-center gap-2 font-semibold"><MapPin className="h-4 w-4 text-primary" />ABC Paulista - SP</p><p className="opacity-75">Envio para todo o Brasil</p></div>
+        <div className="space-y-2 font-semibold">
+          <a href={waLink("Olá, equipe Inkiri!")} target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-primary"><Phone className="h-4 w-4 text-primary" />(11) 94088-2448</a>
+          <a href="mailto:contato@inkiri.com.br" className="flex items-center gap-2 hover:text-primary"><Mail className="h-4 w-4 text-primary" />contato@inkiri.com.br</a>
+        </div>
+        <div className="space-y-1"><p className="flex items-center gap-2 font-bold"><Clock className="h-4 w-4 text-primary" />Atendimento</p><p className="opacity-75">Seg-Sex 08h às 18h</p><p className="opacity-75">Sáb 08h às 12h</p></div>
       </div>
       <p className="text-center text-xs opacity-60 pb-6">© {new Date().getFullYear()} Inkiri DTF. Todos os direitos reservados.</p>
     </footer>
@@ -259,24 +394,19 @@ export function Footer() {
 
 export function FloatingWhatsApp() {
   const [msg, setMsg] = useState("Olá, equipe Inkiri! Quero um orçamento de uniformes.");
-  const [inStudio, setInStudio] = useState(false);
   useEffect(() => {
     const nodes = document.querySelectorAll<HTMLElement>("[data-wa]");
     const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) setMsg(e.target.getAttribute("data-wa") ?? "Olá, equipe Inkiri!"); });
+      entries.forEach((e) => { if (e.isIntersecting) setMsg(e.target.getAttribute("data-wa")!); });
     }, { rootMargin: "-45% 0px -45% 0px" });
     nodes.forEach((n) => io.observe(n));
-    const studioObserver = new IntersectionObserver(([entry]) => setInStudio(entry?.isIntersecting ?? false));
-    const studio = document.getElementById("simulador");
-    if (studio) studioObserver.observe(studio);
-    return () => { io.disconnect(); studioObserver.disconnect(); };
+    return () => io.disconnect();
   }, []);
-  if (inStudio) return null;
   return (
     <a href={waLink(msg)} target="_blank" rel="noreferrer" aria-label="Falar no WhatsApp" title={msg}
-      className={`fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-glow ${PRESS_PRIMARY}`}>
+      className={`fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-primary to-sky-500 text-primary-foreground flex items-center justify-center ${PRESS_PRIMARY}`}>
       <MessageCircle className="h-7 w-7" />
-      
+      <span className="absolute inset-0 rounded-full bg-sky-400 animate-ping opacity-35" />
     </a>
   );
 }
