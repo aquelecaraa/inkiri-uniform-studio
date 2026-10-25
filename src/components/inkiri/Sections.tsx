@@ -25,15 +25,15 @@ export function TopBar() {
 export function Header() {
   const links = [["#como", "Como funciona"], ["#catalogo", "Catálogo"], ["#tecnologia", "DTF x Bordado"], ["#medidas", "Medidas"], ["#faq", "FAQ"]];
   return (
-    <header className="sticky top-8 sm:top-9 z-30 border-b border-white/10 bg-background/80 backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-700 ease-out motion-reduce:animate-none">
-      <div className="mx-auto max-w-7xl px-4 h-14 md:h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-700 ease-out motion-reduce:animate-none">
+      <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo em dois balões */}
         <a href="#topo" aria-label="Inkiri DTF — voltar ao topo" className="flex items-center gap-1.5 shrink-0 transition-all duration-300 ease-out hover:scale-105">
           <span className="relative rounded-2xl rounded-bl-sm bg-ice px-3.5 py-1 font-display text-lg md:text-xl font-extrabold uppercase leading-none tracking-wide text-ice-foreground shadow-sm">
             Inkiri
             <span aria-hidden className="absolute -bottom-1.5 left-0 h-3 w-3 bg-ice [clip-path:polygon(0_0,100%_0,0_100%)]" />
           </span>
-          <span className="rounded-full border-[1.5px] border-sky-300/80 bg-primary px-3.5 py-1 font-display text-lg md:text-xl font-extrabold uppercase leading-none tracking-wide text-primary-foreground shadow-sm">
+          <span className="rounded-full border-[1.5px] border-sky-300/80 bg-gradient-to-r from-primary to-sky-500 px-3.5 py-1 font-display text-lg md:text-xl font-extrabold uppercase leading-none tracking-wide text-primary-foreground shadow-sm">
             DTF
           </span>
         </a>
@@ -48,7 +48,7 @@ export function Header() {
         </nav>
 
         {/* CTA Principal com brilho */}
-        <a href="#simulador" className={`btn-shine shrink-0 rounded-full bg-primary text-primary-foreground px-5 py-2 text-xs md:text-sm font-bold ${PRESS_PRIMARY}`}>
+        <a href="#simulador" className={`btn-shine shrink-0 rounded-full bg-gradient-to-r from-primary to-sky-500 text-primary-foreground px-5 py-2 text-xs md:text-sm font-bold ${PRESS_PRIMARY}`}>
           Simular Agora
         </a>
       </div>
