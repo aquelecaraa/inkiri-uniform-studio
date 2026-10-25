@@ -48,7 +48,8 @@ export const MODELS: Model[] = [
   { id: "bermuda-uv", name: "Bermuda UV", shape: "shorts", purpose: "eventos", fabric: "dryfit", studio: true },
 ];
 
-export const STUDIO_MODELS = MODELS.filter((m) => !["jogger", "bermuda-moletom", "bermuda-poliamida", "bermuda-uv"].includes(m.id));
+// Cada peça exibida no catálogo deve poder ser aberta diretamente no estúdio.
+export const STUDIO_MODELS = MODELS;
 
 export type CatalogTab = "todos" | "corporativo" | "eventos" | "uv" | "inverno" | "bermudas" | "gastronomia";
 export const CATALOG_TABS: { id: CatalogTab; label: string }[] = [
@@ -58,7 +59,7 @@ export const CATALOG_TABS: { id: CatalogTab; label: string }[] = [
   { id: "uv", label: "Linha UV & Esportiva" },
   { id: "inverno", label: "Inverno (Corta-Vento & Moletom)" },
   { id: "bermudas", label: "Bermudas & Calças" },
-  { id: "gastronomia", label: "Gastronomia (Aventais & Dólmãs)" },
+  { id: "gastronomia", label: "Gastronomia & Aventais" },
 ];
 
 export const CATALOG: { id: string; tab: CatalogTab[]; spec: string; color: string }[] = [

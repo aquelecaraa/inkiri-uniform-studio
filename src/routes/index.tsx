@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Studio } from "@/components/inkiri/Studio";
-import { TopBar, Header, Hero, Timeline, Catalog, Compare, SizeGuide, Portfolio, Faq, Footer, FloatingWhatsApp } from "@/components/inkiri/Sections";
+import { Header, Hero, Timeline, Catalog, Compare, SizeGuide, Portfolio, Faq, Footer, FloatingWhatsApp } from "@/components/inkiri/Sections";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,7 +25,6 @@ function Index() {
   };
   return (
     <div className="min-h-screen">
-      <TopBar />
       <Header />
       <main>
         <Hero />
