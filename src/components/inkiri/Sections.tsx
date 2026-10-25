@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 import { Zap, FileCheck2, Palette, TrendingDown, MousePointerClick, Warehouse, Factory, Truck, MessageCircle, Check, X, Star, MapPin, Phone, Mail, Clock, Calculator, Sparkles, ShieldCheck } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Garment } from "./Garment";
+import workshopImage from "../../assets/inkiri-workshop.jpg";
 import { CATALOG, CATALOG_TABS, MODELS, FABRICS, recommendSize, waLink, type CatalogTab } from "@/lib/inkiri";
 
 /* ── Tokens de estilo (Limpos, Profissionais e Equilibrados) ─────────── */
 const ENTER = "animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out fill-mode-backwards motion-reduce:animate-none";
 const GLASS = "bg-card/80 backdrop-blur-xl border border-white/10 shadow-xl";
 const PRESS = "cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95";
-const PRESS_PRIMARY = `${PRESS} shadow-md shadow-primary/20 hover:shadow-[0_0_24px_-8px_oklch(0.65_0.24_255_/_0.55)]`;
+const PRESS_PRIMARY = `${PRESS} shadow-md shadow-black/15 hover:shadow-md`;
 
 export function TopBar() {
   return (
-    <div className="sticky top-0 z-40 bg-gradient-to-r from-blue-700 via-primary to-sky-500 text-primary-foreground text-[11px] sm:text-sm font-bold py-2 px-3 text-center shadow-md">
+    <div className="sticky top-0 z-40 bg-primary text-primary-foreground text-[11px] sm:text-sm font-bold py-2 px-3 text-center shadow-md">
       <span className="inline-flex items-center gap-2">
         <span className="h-2.5 w-2.5 rounded-full bg-white animate-ping" />
         ⚡ Produção Expressa 24h Ativa <span className="hidden sm:inline">| Atendimento Imediato para ABC Paulista, SP e Envio Nacional</span>
@@ -32,7 +33,7 @@ export function Header() {
             Inkiri
             <span aria-hidden className="absolute -bottom-1.5 left-0 h-3 w-3 bg-ice [clip-path:polygon(0_0,100%_0,0_100%)]" />
           </span>
-          <span className="rounded-full border-[1.5px] border-sky-300/80 bg-gradient-to-r from-primary to-sky-500 px-3.5 py-1 font-display text-lg md:text-xl font-extrabold uppercase leading-none tracking-wide text-primary-foreground shadow-sm">
+          <span className="rounded-full border-[1.5px] border-sky-300/80 bg-primary px-3.5 py-1 font-display text-lg md:text-xl font-extrabold uppercase leading-none tracking-wide text-primary-foreground shadow-sm">
             DTF
           </span>
         </a>
@@ -47,7 +48,7 @@ export function Header() {
         </nav>
 
         {/* CTA Principal com brilho */}
-        <a href="#simulador" className={`btn-shine shrink-0 rounded-full bg-gradient-to-r from-primary to-sky-500 text-primary-foreground px-5 py-2 text-xs md:text-sm font-bold ${PRESS_PRIMARY}`}>
+        <a href="#simulador" className={`btn-shine shrink-0 rounded-full bg-primary text-primary-foreground px-5 py-2 text-xs md:text-sm font-bold ${PRESS_PRIMARY}`}>
           Simular Agora
         </a>
       </div>
@@ -68,7 +69,7 @@ export function Hero() {
           </span>
           <h1 className={`mt-6 text-5xl sm:text-6xl lg:text-7xl font-extrabold uppercase leading-[0.93] tracking-tight ${ENTER} delay-100`}>
             Uniformes prontos em{" "}
-            <span className="bg-gradient-to-r from-sky-300 via-primary to-blue-400 bg-clip-text text-transparent">
+            <span className="text-sky-300">
               24 horas.
             </span>
             <br />
@@ -78,7 +79,7 @@ export function Hero() {
             Padronização imediata para empresas e eventos de última hora: estoque inteligente a pronta entrega + personalização in-house com <strong className="text-white font-semibold">DTF Digital</strong> e <strong className="text-white font-semibold">Bordado Industrial</strong>.
           </p>
           <div className={`mt-8 flex flex-col sm:flex-row gap-3.5 ${ENTER} delay-300`}>
-            <a href="#simulador" className={`btn-shine rounded-xl bg-gradient-to-r from-primary via-blue-600 to-sky-500 text-primary-foreground px-8 py-4 font-bold text-center text-base ${PRESS_PRIMARY}`}>
+            <a href="#simulador" className={`btn-shine rounded-xl bg-primary text-primary-foreground px-8 py-4 font-bold text-center text-base ${PRESS_PRIMARY}`}>
               Simular Meu Uniforme Agora
             </a>
             <a href={waLink("Olá, equipe Inkiri! Quero um orçamento rápido de uniformes.")} target="_blank" rel="noreferrer" className={`rounded-xl border border-white/15 bg-white/[0.04] backdrop-blur-xl px-7 py-4 font-bold text-center flex items-center justify-center gap-2 hover:bg-white/10 ${PRESS}`}>
@@ -91,7 +92,7 @@ export function Hero() {
         <div className={`relative h-[380px] sm:h-[460px] rounded-3xl overflow-hidden border border-white/15 shadow-2xl ${ENTER} delay-200 group`}>
           <div className="absolute inset-0 bg-slate-950 flex items-center justify-center overflow-hidden">
             {/* Foto fiel de camisas polo reais no cabide com maquinário industrial ao fundo */}
-            <div className="absolute inset-0 opacity-90 bg-[url('https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1600&q=85')] bg-cover bg-center transform transition-transform duration-700 group-hover:scale-105" />
+            <div className="absolute inset-0 opacity-95 bg-cover bg-center transform transition-transform duration-700 group-hover:scale-[1.02]" style={{ backgroundImage: `url(${workshopImage})` }} />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
           </div>
 
@@ -171,14 +172,14 @@ export function Catalog({ onSimulate }: { onSimulate: (id: string) => void }) {
         <h2 className="text-4xl md:text-6xl font-extrabold uppercase mt-1">Campeões de venda</h2>
         <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
           {CATALOG_TABS.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold border ${PRESS} ${tab === t.id ? "bg-gradient-to-r from-primary to-sky-500 text-primary-foreground border-sky-400 shadow-md" : "border-white/10 bg-card/60 backdrop-blur-md hover:border-primary/50 hover:bg-accent"}`}>{t.label}</button>
+            <button key={t.id} onClick={() => setTab(t.id)} className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold border ${PRESS} ${tab === t.id ? "bg-primary text-primary-foreground border-primary shadow-sm" : "border-white/10 bg-card/60 backdrop-blur-md hover:border-primary/50 hover:bg-accent"}`}>{t.label}</button>
           ))}
         </div>
         <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {items.map((c) => {
             const m = MODELS.find((x) => x.id === c.id)!;
             return (
-              <article key={c.id} className="group rounded-2xl border border-white/10 bg-card/70 backdrop-blur-xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl">
+              <article key={c.id} className="group rounded-2xl border border-white/10 bg-card/70 backdrop-blur-xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-md">
                 <div className="bg-stage aspect-square p-6 overflow-hidden relative">
                   <div className="h-full w-full transition-transform duration-500 group-hover:scale-105">
                     <Garment shape={m.shape} body={c.color} collar={c.color === "#ffffff" ? "#1f2a44" : "#ffffff"} className="h-full w-full drop-shadow-md" />
@@ -188,7 +189,7 @@ export function Catalog({ onSimulate }: { onSimulate: (id: string) => void }) {
                   <h3 className="text-xl font-extrabold uppercase leading-tight">{m.name}</h3>
                   <p className="text-xs text-sky-400 font-bold mt-1 uppercase tracking-wider">{FABRICS[m.fabric].name}</p>
                   <p className="text-sm text-muted-foreground mt-2 flex-1">{c.spec}</p>
-                  <button onClick={() => onSimulate(c.id)} className={`mt-4 rounded-xl bg-gradient-to-r from-primary to-sky-500 text-primary-foreground py-3 text-sm font-bold shadow-sm transition-all duration-300 hover:brightness-105 hover:shadow-md ${PRESS}`}>
+                  <button onClick={() => onSimulate(c.id)} className={`mt-4 rounded-xl bg-primary text-primary-foreground py-3 text-sm font-bold shadow-sm transition-colors duration-200 hover:bg-primary/90 ${PRESS}`}>
                     Simular Minha Logo Nesta Peça
                   </button>
                 </div>
@@ -314,12 +315,12 @@ export function Portfolio() {
         <h2 className="text-4xl md:text-6xl font-extrabold uppercase text-center">Quem já confia na Inkiri</h2>
         <div className="mt-6 flex justify-center gap-2">
           {([["empresas", "Empresas Padronizadas"], ["eventos", "Eventos Atendidos em 24h"]] as const).map(([k, l]) => (
-            <button key={k} onClick={() => setTab(k)} className={`rounded-full px-5 py-2.5 text-sm font-bold border ${PRESS} ${tab === k ? "bg-gradient-to-r from-primary to-sky-500 text-primary-foreground border-sky-400 shadow-md" : "border-white/10 bg-card/60 backdrop-blur-md"}`}>{l}</button>
+            <button key={k} onClick={() => setTab(k)} className={`rounded-full px-5 py-2.5 text-sm font-bold border ${PRESS} ${tab === k ? "bg-primary text-primary-foreground border-primary shadow-sm" : "border-white/10 bg-card/60 backdrop-blur-md"}`}>{l}</button>
           ))}
         </div>
         <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-5">
           {data[tab].map(([n, s, c]) => (
-            <div key={n} className="group rounded-2xl overflow-hidden border border-white/10 bg-card/60 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
+            <div key={n} className="group rounded-2xl overflow-hidden border border-white/10 bg-card/60 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
               <div className="bg-stage aspect-square p-6 overflow-hidden">
                 <div className="h-full w-full transition-transform duration-500 group-hover:scale-105">
                   <Garment shape={s} body={c} collar={c === "#ffffff" ? "#1d4ed8" : "#ffffff"} className="h-full w-full drop-shadow-md" />
@@ -404,7 +405,7 @@ export function FloatingWhatsApp() {
   }, []);
   return (
     <a href={waLink(msg)} target="_blank" rel="noreferrer" aria-label="Falar no WhatsApp" title={msg}
-      className={`fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-primary to-sky-500 text-primary-foreground flex items-center justify-center ${PRESS_PRIMARY}`}>
+      className={`fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center ${PRESS_PRIMARY}`}>
       <MessageCircle className="h-7 w-7" />
       <span className="absolute inset-0 rounded-full bg-sky-400 animate-ping opacity-35" />
     </a>

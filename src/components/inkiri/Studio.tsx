@@ -22,9 +22,9 @@ const QUICK: { label: string; view: View; x: number; y: number; w: number }[] = 
 /* ── Tokens de estilo (Tailwind + Brilho Elétrico) ───────────────────── */
 const ENTER = "animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out fill-mode-backwards motion-reduce:animate-none";
 const GLASS = "bg-card/75 backdrop-blur-xl border border-white/15";
-const PRESS = "cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg hover:brightness-110 active:scale-95 disabled:hover:scale-100 disabled:hover:shadow-none disabled:hover:brightness-100";
-const PRESS_PRIMARY = `${PRESS} shadow-glow hover:shadow-[0_0_40px_-5px_oklch(0.65_0.24_255_/_0.8)]`;
-const CHOICE = "cursor-pointer transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:border-sky-400/60";
+const PRESS = "cursor-pointer transition-colors duration-200 ease-out hover:border-primary/50 active:scale-[0.99] disabled:opacity-50";
+const PRESS_PRIMARY = `${PRESS} shadow-sm shadow-black/15 hover:shadow-md`;
+const CHOICE = "cursor-pointer transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-sm hover:border-sky-400/60";
 
 const FONTS = [
   { label: "Industrial", css: "'Barlow Condensed', sans-serif" },
@@ -146,7 +146,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
         <div className="flex gap-2.5 overflow-x-auto pb-2 justify-start md:justify-center mb-8">
           {PURPOSES.map((p) => (
             <button key={p.id} onClick={() => { setPurpose(p.id); const first = STUDIO_MODELS.find((m) => m.purpose === p.id); if (first) setModelId(first.id); }}
-              className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold border ${PRESS} ${purpose === p.id ? "bg-gradient-to-r from-primary to-sky-500 text-primary-foreground border-sky-400 shadow-glow" : "border-white/15 bg-card/70 backdrop-blur-md hover:border-primary/50 hover:bg-accent"}`}>
+              className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold border ${PRESS} ${purpose === p.id ? "bg-primary text-primary-foreground border-primary shadow-sm" : "border-white/15 bg-card/70 backdrop-blur-md hover:border-primary/50 hover:bg-accent"}`}>
               {p.label}
             </button>
           ))}
@@ -180,7 +180,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               <div className="mt-3 flex items-center justify-between gap-2">
                 <div className="flex rounded-lg border border-white/15 overflow-hidden">
                   {(["front", "back"] as View[]).map((v) => (
-                    <button key={v} onClick={() => setView(v)} className={`px-4 py-2 text-sm font-bold transition-all duration-300 ease-out cursor-pointer ${view === v ? "bg-gradient-to-r from-primary to-sky-500 text-primary-foreground" : "hover:bg-accent"}`}>
+                    <button key={v} onClick={() => setView(v)} className={`px-4 py-2 text-sm font-bold transition-all duration-300 ease-out cursor-pointer ${view === v ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>
                       {v === "front" ? "Frente" : "Costas"}
                     </button>
                   ))}
@@ -204,7 +204,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               {tab === "modelo" && (
                 <div className="grid grid-cols-2 gap-3">
                   {models.map((m) => (
-                    <button key={m.id} onClick={() => setModelId(m.id)} className={`rounded-xl border p-3 text-left ${CHOICE} ${m.id === model.id ? "border-sky-400 bg-primary/15 shadow-glow" : "border-white/15 hover:bg-accent"}`}>
+                    <button key={m.id} onClick={() => setModelId(m.id)} className={`rounded-xl border p-3 text-left ${CHOICE} ${m.id === model.id ? "border-sky-400 bg-primary/15 shadow-sm shadow-primary/10" : "border-white/15 hover:bg-accent"}`}>
                       <div className="bg-stage rounded-lg aspect-square mb-2"><Garment shape={m.shape} body={body} sleeve={sleeve} collar={collar} className="h-full w-full p-2" /></div>
                       <span className="text-sm font-bold leading-tight block">{m.name}</span>
                     </button>
@@ -215,13 +215,13 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               {tab === "cores" && (<>
                 <div className="flex gap-2 flex-wrap">
                   {([["body", "Corpo"], ...(model.hasCollar || ["apron", "shorts", "pants"].includes(model.shape) ? [["collar", model.shape === "apron" ? "Alças" : ["shorts", "pants"].includes(model.shape) ? "Cós/Punhos" : "Gola & Punhos"]] : [])] as [typeof part, string][]).map(([k, l]) => (
-                    <button key={k} onClick={() => setPart(k)} className={`rounded-lg px-4 py-2 text-sm font-bold border ${PRESS} ${part === k ? "bg-gradient-to-r from-primary to-sky-500 text-primary-foreground border-sky-400 shadow-glow" : "border-white/15 bg-white/5"}`}>{l}</button>
+                    <button key={k} onClick={() => setPart(k)} className={`rounded-lg px-4 py-2 text-sm font-bold border ${PRESS} ${part === k ? "bg-primary text-primary-foreground border-primary shadow-sm" : "border-white/15 bg-white/5"}`}>{l}</button>
                   ))}
                 </div>
                 <div className="grid grid-cols-6 gap-3">
                   {swatches.map((c) => (
                     <button key={c.hex} title={c.name} onClick={() => setCurrent(c.hex)}
-                      className={`aspect-square rounded-full border-2 ${PRESS} ${current === c.hex ? "border-sky-300 scale-110 hover:scale-110 shadow-glow ring-2 ring-sky-400/50" : "border-white/25"}`} style={{ background: c.hex }} />
+                      className={`aspect-square rounded-full border-2 ${PRESS} ${current === c.hex ? "border-sky-300 scale-105 ring-2 ring-sky-400/30" : "border-white/25"}`} style={{ background: c.hex }} />
                   ))}
                 </div>
                 <p className="text-sm">Selecionada: <b className="text-sky-300">{colorName(current)}</b></p>
@@ -233,13 +233,13 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               </>)}
 
               {tab === "arte" && (<>
-                <label className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-sky-400/60 bg-primary/10 p-5 cursor-pointer font-bold transition-all duration-300 ease-out hover:scale-[1.02] hover:border-sky-300 hover:bg-primary/20 hover:shadow-glow">
+                <label className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-sky-400/60 bg-primary/10 p-5 cursor-pointer font-bold transition-all duration-300 ease-out hover:border-sky-300 hover:bg-primary/15">
                   <Upload className="h-5 w-5 text-sky-400" /> Enviar logo / estampa (PNG, SVG, JPG)
                   <input type="file" accept="image/png,image/svg+xml,image/jpeg" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
                 </label>
                 <div className="flex gap-2">
                   <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Nome, cargo, frase ou número" className="flex-1 rounded-lg bg-white/5 border border-white/15 outline-none transition-all duration-300 focus:border-sky-400 focus:ring-2 focus:ring-primary/40 px-3 py-2 text-sm" />
-                  <button onClick={() => { if (text.trim()) { add({ kind: "text", text, font, color: textColor }); setText(""); } }} className={`rounded-lg bg-gradient-to-r from-primary to-sky-500 text-primary-foreground px-3.5 font-bold flex items-center gap-1 ${PRESS_PRIMARY}`}><Type className="h-4 w-4" />Inserir</button>
+                  <button onClick={() => { if (text.trim()) { add({ kind: "text", text, font, color: textColor }); setText(""); } }} className={`rounded-lg bg-primary text-primary-foreground px-3.5 font-bold flex items-center gap-1 ${PRESS_PRIMARY}`}><Type className="h-4 w-4" />Inserir</button>
                 </div>
                 <div className="flex gap-2 flex-wrap items-center">
                   <select value={font} onChange={(e) => { setFont(e.target.value); if (selected?.kind === "text") update(selected.id, { font: e.target.value }); }} className="rounded-lg bg-card border border-white/15 outline-none transition-all duration-300 focus:border-sky-400 px-2.5 py-2 text-sm">
@@ -272,7 +272,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
                 <div className="space-y-2">
                   {(Object.keys(FABRICS) as FabricId[]).map((f) => (
                     <button key={f} onClick={() => setFabric(f)} className={`w-full text-left rounded-xl border p-3 ${CHOICE} ${fabric === f ? "border-sky-400 bg-primary/15" : "border-white/15 hover:bg-accent"}`}>
-                      <div className="flex items-center justify-between font-bold text-sm">{FABRICS[f].name}{f === model.fabric && <span className="text-[10px] uppercase bg-gradient-to-r from-primary to-sky-500 text-primary-foreground rounded px-2 py-0.5">Recomendado</span>}</div>
+                      <div className="flex items-center justify-between font-bold text-sm">{FABRICS[f].name}{f === model.fabric && <span className="text-[10px] uppercase bg-primary text-primary-foreground rounded px-2 py-0.5">Recomendado</span>}</div>
                       <p className="text-xs text-muted-foreground mt-1">{FABRICS[f].tip}</p>
                     </button>
                   ))}
@@ -334,7 +334,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               </div>
               <div>
                 <div className="h-3 rounded-full bg-secondary overflow-hidden p-0.5 border border-white/10">
-                  <div className="btn-shine h-full rounded-full bg-gradient-to-r from-primary via-blue-500 to-sky-400 transition-all duration-700 ease-out shadow-glow" style={{ width: `${Math.min(100, (total / 100) * 100)}%` }} />
+                  <div className="h-full rounded-full bg-primary transition-all duration-700 ease-out" style={{ width: `${Math.min(100, (total / 100) * 100)}%` }} />
                 </div>
                 <div className="grid grid-cols-3 mt-2 text-[10px] sm:text-[11px] leading-tight">
                   {TIERS.map((t) => (
@@ -347,7 +347,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               </div>
               {total < MIN_ORDER && <p className="text-xs text-warning font-semibold flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5" />Pedido mínimo de {MIN_ORDER} peças. Preencha a grade.</p>}
               <button disabled={total < MIN_ORDER} onClick={() => setOpen(true)}
-                className={`btn-shine w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary via-blue-600 to-sky-500 text-primary-foreground py-4 font-bold text-base disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed ${PRESS_PRIMARY}`}>
+                className={`btn-shine w-full flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-4 font-bold text-base disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed ${PRESS_PRIMARY}`}>
                 <MessageCircle className="h-5 w-5" />Receber Orçamento Express no WhatsApp
               </button>
               {total < MIN_ORDER && <button onClick={() => setTab("grade")} className="w-full text-xs underline text-sky-300 cursor-pointer">Ir para a grade de tamanhos</button>}
@@ -376,7 +376,7 @@ function LeadModal({ open, onOpenChange, onSubmit }: { open: boolean; onOpenChan
               <input type={t} value={v} maxLength={80} onChange={(x) => s(x.target.value)} className="mt-1 w-full rounded-lg bg-white/5 border border-white/15 outline-none transition-all duration-300 focus:border-sky-400 focus:ring-2 focus:ring-primary/40 px-3 py-2.5" />
             </label>
           ))}
-          <button disabled={!valid} className={`btn-shine w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-sky-500 text-primary-foreground py-3.5 font-bold disabled:opacity-40 disabled:cursor-not-allowed ${PRESS_PRIMARY}`}>
+          <button disabled={!valid} className={`btn-shine w-full flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3.5 font-bold disabled:opacity-40 disabled:cursor-not-allowed ${PRESS_PRIMARY}`}>
             <MessageCircle className="h-5 w-5" />Enviar para o WhatsApp
           </button>
         </form>
