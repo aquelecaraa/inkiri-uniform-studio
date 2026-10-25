@@ -89,23 +89,27 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Vitrine Flutuante 100% Fotográfica (Polo, Manga Longa UV e Camiseta) */}
-        <div className={`relative h-[370px] sm:h-[460px] ${ENTER} delay-200`}>
-          {/* Halo luminoso claro atrás das camisas para destacar as fotos */}
-          <div aria-hidden className="absolute inset-6 rounded-3xl bg-stage shadow-[0_0_80px_rgba(59,130,246,0.35)] border border-white/30 overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(59,130,246,0.18),transparent_65%)]" />
-          </div>
-
-          <Garment shape="polo" body="#1f2a44" collar="#ffffff" className="animate-float-left absolute left-2 top-8 w-[54%] drop-shadow-[0_25px_25px_rgba(0,0,0,0.45)]" />
-          <Garment shape="longsleeve" body="#ffffff" collar="#1d4ed8" className="animate-float-right absolute right-2 top-6 w-[52%] drop-shadow-[0_25px_25px_rgba(0,0,0,0.45)]" />
-          <Garment shape="tshirt" body="#1d4ed8" collar="#ffffff" className="animate-float-center absolute left-1/2 bottom-3 w-[52%] drop-shadow-[0_30px_30px_rgba(0,0,0,0.55)]" />
-
-          {/* Badges Flutuantes de Especificação */}
-          <div className="absolute left-4 top-4 rounded-full bg-slate-950/85 backdrop-blur-md border border-sky-400/40 px-3.5 py-1.5 text-[11px] font-bold text-sky-300 shadow-lg flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-sky-400 animate-ping" /> Alta Definição DTF 300 DPI
-          </div>
-          <div className="absolute right-4 bottom-4 rounded-full bg-slate-950/85 backdrop-blur-md border border-primary/50 px-3.5 py-1.5 text-[11px] font-bold text-white shadow-lg flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-sky-400" /> Estoque Real · Pronta Entrega
+        {/* Fotografia Real Industrial / de Fábrica em destaque no Hero */}
+        <div className={`relative h-[380px] sm:h-[460px] rounded-3xl overflow-hidden border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.6)] ${ENTER} delay-200 group`}>
+          <img 
+            src="https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=1200&q=80" 
+            alt="Produção de Uniformes e Impressão DTF Industrial" 
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+          
+          <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-primary/80 backdrop-blur-md border border-sky-400/50 px-3.5 py-1 text-xs font-bold text-white shadow-lg flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-sky-400 animate-ping" /> Parque Gráfico Próprio
+              </span>
+              <span className="text-xs font-bold text-sky-300 bg-slate-900/80 px-3 py-1 rounded-full border border-white/10">
+                ABC Paulista - SP
+              </span>
+            </div>
+            <p className="text-sm font-medium text-slate-200 drop-shadow-md">
+              Estrutura profissional pronta para entregar lotes corporativos em até 24h com nota fiscal.
+            </p>
           </div>
         </div>
       </div>
