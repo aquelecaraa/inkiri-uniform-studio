@@ -8,7 +8,7 @@ import { CATALOG, CATALOG_TABS, MODELS, FABRICS, recommendSize, waLink, type Cat
 const ENTER = "animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out fill-mode-backwards motion-reduce:animate-none";
 const GLASS = "bg-card/80 backdrop-blur-xl border border-white/10 shadow-xl";
 const PRESS = "cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95";
-const PRESS_PRIMARY = `${PRESS} shadow-glow hover:shadow-[0_0_35px_-5px_oklch(0.65_0.24_255_/_0.7)]`;
+const PRESS_PRIMARY = `${PRESS} shadow-md shadow-primary/20 hover:shadow-[0_0_24px_-8px_oklch(0.65_0.24_255_/_0.55)]`;
 
 export function TopBar() {
   return (
@@ -91,7 +91,7 @@ export function Hero() {
         <div className={`relative h-[380px] sm:h-[460px] rounded-3xl overflow-hidden border border-white/15 shadow-2xl ${ENTER} delay-200 group`}>
           <div className="absolute inset-0 bg-slate-950 flex items-center justify-center overflow-hidden">
             {/* Foto fiel de camisas polo reais no cabide com maquinário industrial ao fundo */}
-            <div className="absolute inset-0 opacity-90 bg-[url('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center transform transition-transform duration-700 group-hover:scale-105" />
+            <div className="absolute inset-0 opacity-90 bg-[url('https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1600&q=85')] bg-cover bg-center transform transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
           </div>
 
@@ -188,7 +188,7 @@ export function Catalog({ onSimulate }: { onSimulate: (id: string) => void }) {
                   <h3 className="text-xl font-extrabold uppercase leading-tight">{m.name}</h3>
                   <p className="text-xs text-sky-400 font-bold mt-1 uppercase tracking-wider">{FABRICS[m.fabric].name}</p>
                   <p className="text-sm text-muted-foreground mt-2 flex-1">{c.spec}</p>
-                  <button onClick={() => onSimulate(c.id)} className={`btn-shine mt-4 rounded-xl bg-gradient-to-r from-primary to-sky-500 text-primary-foreground py-3 text-sm font-bold ${PRESS_PRIMARY}`}>
+                  <button onClick={() => onSimulate(c.id)} className={`mt-4 rounded-xl bg-gradient-to-r from-primary to-sky-500 text-primary-foreground py-3 text-sm font-bold shadow-sm transition-all duration-300 hover:brightness-105 hover:shadow-md ${PRESS}`}>
                     Simular Minha Logo Nesta Peça
                   </button>
                 </div>
