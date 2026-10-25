@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useId } from "react";
 import type { Shape } from "@/lib/inkiri";
 
 type Props = {
@@ -40,7 +40,7 @@ function GarmentSvg({ shape, body, sleeve, collar, view = "front", className }: 
   const short = ["tshirt", "polo"].includes(shape);
   const long = ["longsleeve", "crewneck", "hoodie", "jacket"].includes(shape);
   const cap = shape === "babylook";
-  const id = `sh-${shape}`;
+  const id = useId();
 
   return (
     <svg viewBox="0 0 400 440" className={className} role="img" aria-label="Peça">
@@ -175,12 +175,13 @@ function loadAsset(a: PhotoAsset): Promise<Loaded> {
 function hexToRgb(hex: string): [number, number, number] {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
   if (!m) return [255, 255, 255];
-  const n = parseInt(m[1]!, 16);
+  const n = parseInt(m[1] ?? "ffffff", 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: PhotoAsset; body: string; sleeve: string; collar: string; className?: string }) {
+function GarmentPhoto({ asset, body, sleeve, collar, className }: { asset: PhotoAsset; body: string; sleeve: string; collar: string; className?: string | undefined }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const [failed, setFailed] = useState(false);
   const scale = Math.min(1, MAX_H / asset.h);
   const w = Math.round(asset.w * scale);
   const h = Math.round(asset.h * scale);
@@ -199,12 +200,12 @@ useEffect(() => {
         const o = out.data;
         
         for (let i = 0; i < o.length; i += 4) {
-          const a = shade[i + 3]!;
+          const a = (shade[i + 3] ?? 0);
           if (a === 0) continue; 
           
           // Recupera a suavidade da máscara (anti-aliasing)
-          let ws = regions[i]! / 255; 
-          let wc = regions[i + 1]! / 255; 
+          let ws = (regions[i] ?? 0) / 255; 
+          let wc = (regions[i + 1] ?? 0) / 255; 
           
           // Normaliza os pesos para evitar estouro de cor e vazamentos nas costuras
           const sum = ws + wc;
@@ -215,7 +216,7 @@ useEffect(() => {
           const wb = 1 - ws - wc;
           
           // Aplica o sombreamento real da foto
-          const g = shade[i]! / 255; 
+          const g = (shade[i] ?? 255) / 255; 
           
           o[i] = (B[0] * wb + S[0] * ws + C[0] * wc) * g;
           o[i + 1] = (B[1] * wb + S[1] * ws + C[1] * wc) * g;
@@ -224,10 +225,11 @@ useEffect(() => {
         }
         ctx.putImageData(out, 0, 0);
       })
-      .catch(() => {});
+      .catch(() => { if (!cancelled) setFailed(true); });
     return () => { cancelled = true; };
   }, [asset, body, sleeve, collar]);
 
+  if (failed) return <svg viewBox="0 0 400 440" className={className} role="img" aria-label="Prévia simplificada da peça"><path d={BODY.tshirt} fill={body} /><path d={SHORT_L} fill={sleeve} /><path d={SHORT_R} fill={sleeve} /></svg>;
   return (
     <canvas
       ref={ref}

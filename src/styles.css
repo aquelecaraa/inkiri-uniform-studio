@@ -35,6 +35,9 @@
   --color-ice-foreground: var(--ice-foreground);
   --color-steel: var(--steel);
   --color-warning: var(--warning);
+  --color-cover: var(--cover);
+  --color-cover-foreground: var(--cover-foreground);
+  --color-cover-accent: var(--cover-accent);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -51,6 +54,9 @@
 }
 
 :root {
+  --cover: oklch(0.21 0.008 250);
+  --cover-foreground: oklch(0.99 0 0);
+  --cover-accent: oklch(0.87 0.16 145);
   --radius: 0.5rem;
   --background: oklch(0.98 0.005 240);
   --foreground: oklch(0.15 0.03 260);
@@ -60,7 +66,7 @@
   --popover-foreground: oklch(0.15 0.03 260);
   
   /* Azul Escuro Inkiri (Substituiu o verde) */
-  --primary: oklch(0.35 0.12 255); 
+  --primary: oklch(0.43 0.12 151); 
   --primary-foreground: oklch(0.98 0.01 240);
   
   --secondary: oklch(0.96 0.01 240);
@@ -71,10 +77,10 @@
   --accent-foreground: oklch(0.15 0.03 260);
   --destructive: oklch(0.64 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --warning: oklch(0.82 0.17 75);
+  --warning: oklch(0.48 0.12 65);
   --border: oklch(0.90 0.01 240);
   --input: oklch(0.90 0.01 240);
-  --ring: oklch(0.35 0.12 255);
+  --ring: oklch(0.43 0.12 151);
   --ice: oklch(0.965 0.008 230);
   --ice-foreground: oklch(0.2 0.035 262);
   --steel: oklch(0.36 0.012 260);
@@ -132,7 +138,7 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: 0.01em;
+    letter-spacing: 0;
   }
 }
 
@@ -143,4 +149,24 @@
   background-image: linear-gradient(oklch(1 0 0 / 0.04) 1px, transparent 1px),
     linear-gradient(90deg, oklch(1 0 0 / 0.04) 1px, transparent 1px);
   background-size: 40px 40px;
+}
+.hero-shade { background: linear-gradient(90deg, var(--cover) 0%, color-mix(in oklab, var(--cover) 85%, transparent) 35%, transparent 75%); }
+.hero-scene { min-height: 620px; }
+.hero-scene h1 { letter-spacing: 0; }
+#simulador { background: var(--card); }
+#simulador button { white-space: normal; height: auto; min-height: 40px; }
+#simulador button[title] { min-height: 0; }
+#simulador input, #medidas input { background: var(--card); }
+:where(a, button, input, select):focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+@media (max-width: 1023px) {
+ .studio-preview { box-shadow: 0 6px 10px -8px var(--foreground); background: var(--card); }
+ .studio-preview > div { padding: 8px; }
+ .studio-preview [data-testid="garment-stage"] { width: min(100%, 180px); }
+ .hero-photo { object-position: 65% center; }
+ .hero-shade { background: color-mix(in oklab, var(--cover) 78%, transparent); }
+ .hero-scene { min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+ html { scroll-behavior: auto; }
+ *, *::before, *::after { animation: none !important; transition: none !important; }
 }
