@@ -1,4 +1,4 @@
 # Interface Inkiri
-- [ ] Refinar direção industrial com fotografia, hierarquia e controles consistentes.
-- [ ] Corrigir erros existentes e estados do simulador e orçamento.
-- [ ] Validar catálogo, personalização e orçamento em desktop e celular.
+- [x] Refinar direção industrial com fotografia, hierarquia e controles consistentes.
+- [x] Corrigir erros existentes e estados do simulador e orçamento.
+- [x] Validar catálogo, personalização e orçamento em desktop e celular.

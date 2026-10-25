@@ -156,6 +156,7 @@
 #simulador { background: var(--card); }
 #simulador button { white-space: normal; height: auto; min-height: 40px; }
 #simulador button[title] { min-height: 0; }
+#simulador button.purpose-choice { white-space: nowrap; }
 #simulador button[aria-label^="Texto "] { min-height: 28px; border-radius: 50%; }
 #simulador button[aria-label="Alternar frente e costas"] { flex-shrink: 0; }
 #simulador button.bg-primary:hover { background: var(--primary); color: var(--primary-foreground); }

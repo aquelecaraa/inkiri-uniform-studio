@@ -151,7 +151,7 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
         <div className="flex gap-2 overflow-x-auto pb-2 justify-start mb-6">
           {PURPOSES.map((p) => (
             <Button variant="ghost" key={p.id} onClick={() => { setPurpose(p.id); const first = STUDIO_MODELS.find((m) => m.purpose === p.id); if (first) setModelId(first.id); }}
-              className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold border ${PRESS} ${purpose === p.id ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30" : "border-border bg-card/60 backdrop-blur-md hover:bg-accent"}`}>
+              className={`purpose-choice shrink-0 rounded-md px-5 py-2.5 text-sm font-semibold border ${PRESS} ${purpose === p.id ? "bg-primary text-primary-foreground border-primary" : "border-border bg-card/60 backdrop-blur-md hover:bg-accent"}`}>
               {p.label}
             </Button>
           ))}
