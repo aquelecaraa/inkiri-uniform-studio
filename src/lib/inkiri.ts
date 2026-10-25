@@ -124,5 +124,5 @@ export const recommendSize = (heightCm: number, weightKg: number): string => {
   let i = weightKg < 62 ? 0 : weightKg < 76 ? 1 : weightKg < 90 ? 2 : weightKg < 105 ? 3 : 4;
   if (heightCm >= 186 && i < 4) i++;
   if (heightCm < 160 && i > 0 && weightKg < 70) i--;
-  return order[i]!;
+  return order[i] ?? "XG";
 };

@@ -8,3 +8,7 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep customization and quote preparation client-side; WhatsApp receives the generated order brief, not uploaded files.
+- Garment previews share the existing photo renderer with a simplified fallback so asset failures never block quoting.
+- Define visual roles in global semantic tokens and reuse the shared Button for interface controls.
