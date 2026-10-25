@@ -34,6 +34,8 @@
   --color-ice: var(--ice);
   --color-ice-foreground: var(--ice-foreground);
   --color-steel: var(--steel);
+  --color-electric: var(--electric);
+  --color-cyan: var(--cyan);
   --color-warning: var(--warning);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -51,149 +53,170 @@
 }
 
 :root {
-  --radius: 0.65rem;
-  /* Tema Deep Navy & Electric Blue de alto contraste */
-  --background: oklch(0.13 0.035 260);
-  --foreground: oklch(0.98 0.008 240);
-  --card: oklch(0.18 0.04 260);
-  --card-foreground: oklch(0.98 0.008 240);
-  --popover: oklch(0.17 0.04 260);
-  --popover-foreground: oklch(0.98 0.008 240);
-
-  /* Azul Elétrico Inkiri com alto brilho */
-  --primary: oklch(0.60 0.22 255);
-  --primary-foreground: oklch(0.99 0.005 240);
-
-  --secondary: oklch(0.22 0.04 260);
-  --secondary-foreground: oklch(0.97 0.008 240);
-  --muted: oklch(0.20 0.035 260);
-  --muted-foreground: oklch(0.74 0.03 250);
-  --accent: oklch(0.25 0.05 255);
-  --accent-foreground: oklch(0.98 0.008 240);
+  --radius: 0.5rem;
+  --background: oklch(0.17 0.035 262);
+  --foreground: oklch(0.97 0.006 240);
+  --card: oklch(0.215 0.035 262);
+  --card-foreground: oklch(0.97 0.006 240);
+  --popover: oklch(0.215 0.035 262);
+  --popover-foreground: oklch(0.97 0.006 240);
+  --primary: oklch(0.78 0.21 148);
+  --primary-foreground: oklch(0.17 0.04 160);
+  --secondary: oklch(0.28 0.03 262);
+  --secondary-foreground: oklch(0.97 0.006 240);
+  --muted: oklch(0.25 0.03 262);
+  --muted-foreground: oklch(0.72 0.025 250);
+  --accent: oklch(0.3 0.035 262);
+  --accent-foreground: oklch(0.97 0.006 240);
   --destructive: oklch(0.64 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --warning: oklch(0.84 0.17 80);
-  --border: oklch(0.28 0.04 255);
-  --input: oklch(0.26 0.04 255);
-  --ring: oklch(0.60 0.22 255);
-
-  /* Contraste Gelo para seções de respiro e logo */
-  --ice: oklch(0.96 0.012 240);
-  --ice-foreground: oklch(0.15 0.04 260);
-  --steel: oklch(0.42 0.03 255);
-
-  /* Gradientes dramáticos + Palco Lightbox claro para preservar o mix-blend-multiply das fotos */
-  --gradient-hero:
-    radial-gradient(circle at 80% 25%, oklch(0.55 0.24 255 / 0.35), transparent 45%),
-    radial-gradient(circle at 15% 80%, oklch(0.45 0.20 240 / 0.25), transparent 50%),
-    linear-gradient(180deg, oklch(0.11 0.035 262) 0%, oklch(0.15 0.04 258) 100%);
-  --gradient-stage: radial-gradient(circle at 50% 38%, #ffffff 0%, #eef2f7 68%, #dbe4f0 100%);
-  --shadow-glow: 0 0 35px -5px oklch(0.60 0.22 255 / 0.65), 0 12px 30px -10px oklch(0.50 0.22 255 / 0.5);
-
-  --chart-1: oklch(0.60 0.22 255);
-  --chart-2: oklch(0.68 0.16 210);
-  --chart-3: oklch(0.48 0.14 250);
-  --chart-4: oklch(0.82 0.18 84);
-  --chart-5: oklch(0.76 0.18 70);
-  --sidebar: oklch(0.15 0.035 260);
-  --sidebar-foreground: oklch(0.98 0.008 240);
-  --sidebar-primary: oklch(0.60 0.22 255);
-  --sidebar-primary-foreground: oklch(0.99 0.005 240);
-  --sidebar-accent: oklch(0.24 0.045 255);
-  --sidebar-accent-foreground: oklch(0.98 0.008 240);
-  --sidebar-border: oklch(0.28 0.04 255);
-  --sidebar-ring: oklch(0.60 0.22 255);
-}
-
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0px) rotate(-6deg); }
-  50% { transform: translateY(-14px) rotate(-4deg); }
-}
-
-@keyframes float-reverse {
-  0%, 100% { transform: translateY(0px) rotate(6deg); }
-  50% { transform: translateY(-12px) rotate(8deg); }
-}
-
-@keyframes float-center {
-  0%, 100% { transform: translate(-50%, 0px) scale(1); }
-  50% { transform: translate(-50%, -16px) scale(1.03); }
-}
-
-@keyframes shimmer-sweep {
-  0% { transform: translateX(-120%) skewX(-20deg); }
-  100% { transform: translateX(220%) skewX(-20deg); }
-}
-
-@keyframes pulse-halo {
-  0%, 100% { opacity: 0.45; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.08); }
+  --warning: oklch(0.82 0.17 75);
+  --border: oklch(0.32 0.03 262);
+  --input: oklch(0.34 0.03 262);
+  --ring: oklch(0.78 0.21 148);
+  --ice: oklch(0.965 0.008 230);
+  --ice-foreground: oklch(0.2 0.035 262);
+  --steel: oklch(0.36 0.012 260);
+  --electric: oklch(0.58 0.25 262);
+  --cyan: oklch(0.82 0.14 210);
+  --gradient-hero: radial-gradient(ellipse 80% 60% at 78% 25%, oklch(0.42 0.2 262 / 0.95), transparent 62%),
+    radial-gradient(ellipse 60% 50% at 8% 92%, oklch(0.34 0.15 275 / 0.8), transparent 60%),
+    linear-gradient(180deg, oklch(0.2 0.06 264), oklch(0.14 0.035 262));
+  --gradient-electric: linear-gradient(135deg, oklch(0.38 0.19 268) 0%, oklch(0.5 0.24 262) 50%, oklch(0.46 0.2 245) 100%);
+  --gradient-stage: radial-gradient(circle at 50% 40%, oklch(0.985 0.005 230), oklch(0.88 0.012 240));
+  --shadow-glow: 0 12px 50px -8px oklch(0.78 0.21 148 / 0.7), 0 0 0 1px oklch(0.78 0.21 148 / 0.25);
+  --chart-1: oklch(0.78 0.21 148);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.215 0.035 262);
+  --sidebar-foreground: oklch(0.97 0.006 240);
+  --sidebar-primary: oklch(0.78 0.21 148);
+  --sidebar-primary-foreground: oklch(0.17 0.04 160);
+  --sidebar-accent: oklch(0.3 0.035 262);
+  --sidebar-accent-foreground: oklch(0.97 0.006 240);
+  --sidebar-border: oklch(0.32 0.03 262);
+  --sidebar-ring: oklch(0.78 0.21 148);
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { scroll-behavior: smooth; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    overflow-x: hidden;
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: 0.015em;
+    letter-spacing: 0.01em;
   }
 }
 
-@utility bg-hero { background: var(--gradient-hero); }
-@utility bg-stage { background: var(--gradient-stage); }
-@utility shadow-glow { box-shadow: var(--shadow-glow); }
-
+@utility bg-hero {
+  background: var(--gradient-hero);
+}
+@utility bg-stage {
+  background: var(--gradient-stage);
+}
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
 @utility grid-lines {
-  background-image:
-    linear-gradient(oklch(0.65 0.18 255 / 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.65 0.18 255 / 0.08) 1px, transparent 1px);
-  background-size: 44px 44px;
+  background-image: linear-gradient(oklch(1 0 0 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 25%, transparent 78%);
 }
 
-@utility animate-float-left {
-  animation: float-slow 6s ease-in-out infinite;
+/* ══════════════ Camada de impacto — azul elétrico ══════════════ */
+@property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+@keyframes drift-a { 0%, 100% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(7%, -8%, 0) scale(1.18); } }
+@keyframes drift-b { 0%, 100% { transform: translate3d(0, 0, 0) scale(1.1); } 50% { transform: translate3d(-9%, 7%, 0) scale(0.92); } }
+@keyframes shimmer { to { background-position: 200% center; } }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes sheen { 0% { transform: translateX(-140%) skewX(-20deg); } 55%, 100% { transform: translateX(380%) skewX(-20deg); } }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 10px 40px -10px oklch(0.78 0.21 148 / 0.55), 0 0 0 0 oklch(0.78 0.21 148 / 0.45); }
+  50% { box-shadow: 0 14px 60px -6px oklch(0.78 0.21 148 / 0.85), 0 0 0 10px oklch(0.78 0.21 148 / 0); }
+}
+@keyframes pulse-soft { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+@keyframes border-spin { to { --angle: 360deg; } }
+
+@utility animate-float { animation: float-y 6s ease-in-out infinite; }
+@utility animate-float-slow { animation: float-y 9s ease-in-out infinite; }
+@utility animate-drift-a { animation: drift-a 18s ease-in-out infinite; }
+@utility animate-drift-b { animation: drift-b 22s ease-in-out infinite; }
+@utility animate-shimmer { animation: shimmer 6s linear infinite; }
+@utility animate-marquee { animation: marquee 32s linear infinite; }
+@utility animate-pulse-glow { animation: pulse-glow 2.8s ease-in-out infinite; }
+@utility animate-pulse-soft { animation: pulse-soft 5s ease-in-out infinite; }
+
+/* Texto com brilho metálico animado (verde → ciano → azul elétrico) */
+@utility text-shine {
+  background-image: linear-gradient(100deg, oklch(0.88 0.19 150), oklch(0.86 0.14 205), oklch(0.72 0.22 262), oklch(0.88 0.19 150));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+  text-shadow: none;
+  filter: drop-shadow(0 0 22px oklch(0.78 0.21 148 / 0.35));
 }
 
-@utility animate-float-right {
-  animation: float-reverse 7s ease-in-out infinite;
-}
+/* Seções em azul elétrico vivo (substitui a faixa clara) */
+@utility bg-electric-section { background: var(--gradient-electric); }
 
-@utility animate-float-center {
-  animation: float-center 5.5s ease-in-out infinite;
-}
-
-@utility animate-halo {
-  animation: pulse-halo 4s ease-in-out infinite;
-}
-
-@utility btn-shine {
+/* Reflexo que atravessa o botão */
+@utility btn-sheen {
   position: relative;
   overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 35%;
+    background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.5), transparent);
+    transform: translateX(-140%) skewX(-20deg);
+    animation: sheen 3.6s ease-in-out infinite;
+    pointer-events: none;
+  }
 }
 
-.btn-shine::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: 45%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transform: translateX(-150%) skewX(-20deg);
-  animation: shimmer-sweep 3.8s infinite;
-  pointer-events: none;
-}
-
-@utility glow-card {
+/* Borda de luz giratória (cards e painéis) */
+@utility glow-border {
   position: relative;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(from var(--angle), transparent 0 55%, oklch(0.82 0.2 150), oklch(0.75 0.2 235), transparent 92%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    animation: border-spin 5s linear infinite;
+    opacity: var(--glow-o, 0.9);
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+}
+/* Combine com glow-border: a borda só acende no hover */
+@utility glow-hover {
+  --glow-o: 0;
+  &:hover { --glow-o: 1; }
 }
 
-.glow-card:hover {
-  box-shadow: 0 0 30px -5px oklch(0.60 0.22 255 / 0.35), 0 20px 40px -15px rgba(0, 0, 0, 0.6);
-  border-color: oklch(0.60 0.22 255 / 0.6);
+@media (prefers-reduced-motion: reduce) {
+  [class*="animate-"], .text-shine, .btn-sheen::after, .glow-border::before { animation: none !important; }
 }
