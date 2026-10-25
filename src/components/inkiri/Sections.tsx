@@ -22,14 +22,32 @@ export function TopBar() {
 }
 
 export function Header() {
+  const links = [["#como", "Como funciona"], ["#catalogo", "Catálogo"], ["#tecnologia", "DTF x Bordado"], ["#medidas", "Medidas"], ["#faq", "FAQ"]];
   return (
     <header className="sticky top-8 sm:top-9 z-30 border-b border-white/10 bg-background/60 backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-700 ease-out motion-reduce:animate-none">
-      <div className="mx-auto max-w-7xl px-4 h-14 md:h-16 flex items-center justify-between">
-        <a href="#topo" className="font-display text-2xl font-extrabold uppercase tracking-wide transition-all duration-300 ease-out hover:scale-105 hover:brightness-110">Inkiri<span className="text-primary">DTF</span></a>
-        <nav className="hidden md:flex gap-6 text-sm text-muted-foreground">
-          {[["#como", "Como funciona"], ["#catalogo", "Catálogo"], ["#tecnologia", "DTF x Bordado"], ["#medidas", "Medidas"], ["#faq", "FAQ"]].map(([h, l]) => <a key={h} href={h} className="transition-colors duration-300 ease-out hover:text-foreground">{l}</a>)}
+      <div className="mx-auto max-w-7xl px-4 h-14 md:h-16 flex items-center justify-between gap-4">
+        {/* Logo em dois "balões": Inkiri (balão de fala) + DTF (pílula de destaque) */}
+        <a href="#topo" aria-label="Inkiri DTF — voltar ao topo" className="flex items-center gap-1 shrink-0 transition-all duration-300 ease-out hover:scale-105 hover:brightness-110">
+          <span className="relative rounded-2xl rounded-bl-sm bg-ice px-3 py-1 font-display text-lg md:text-xl font-extrabold uppercase leading-none tracking-wide text-ice-foreground shadow-sm">
+            Inkiri
+            <span aria-hidden className="absolute -bottom-1.5 left-0 h-3 w-3 bg-ice [clip-path:polygon(0_0,100%_0,0_100%)]" />
+          </span>
+          <span className="rounded-full border-[1.5px] border-white bg-primary px-3 py-1 font-display text-lg md:text-xl font-extrabold uppercase leading-none tracking-wide text-primary-foreground shadow-sm">
+            DTF
+          </span>
+        </a>
+
+        {/* Links em pílulas com borda (desktop) */}
+        <nav aria-label="Principal" className="hidden md:flex items-center gap-2">
+          {links.map(([h, l]) => (
+            <a key={h} href={h} className="rounded-full border border-white/30 px-3 lg:px-4 py-1.5 text-[11px] lg:text-xs font-semibold text-foreground transition-all duration-300 ease-out hover:border-white/60 hover:bg-white/10 hover:-translate-y-0.5">
+              {l}
+            </a>
+          ))}
         </nav>
-        <a href="#simulador" className={`rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-bold ${PRESS_PRIMARY}`}>Simular</a>
+
+        {/* CTA de conversão */}
+        <a href="#simulador" className={`shrink-0 rounded-full bg-primary text-primary-foreground px-5 py-2 text-xs md:text-sm font-bold ${PRESS_PRIMARY}`}>Simular</a>
       </div>
     </header>
   );
