@@ -11,26 +11,27 @@ type Props = {
 };
 
 const BODY: Record<Shape, string> = {
-  tshirt: "M145 50 Q200 88 255 50 L300 76 L300 420 L100 420 L100 76 Z",
-  longsleeve: "M145 50 Q200 88 255 50 L300 76 L300 420 L100 420 L100 76 Z",
-  polo: "M145 50 Q200 80 255 50 L300 76 L300 420 L100 420 L100 76 Z",
-  crewneck: "M145 50 Q200 88 255 50 L302 76 L302 405 L98 405 L98 76 Z",
-  hoodie: "M145 50 Q200 88 255 50 L302 76 L302 405 L98 405 L98 76 Z",
-  jacket: "M150 48 L200 60 L250 48 L302 76 L302 412 L98 412 L98 76 Z",
-  babylook: "M150 56 Q200 90 250 56 L288 78 Q272 230 292 420 L108 420 Q128 230 112 78 Z",
-  tank: "M152 40 Q200 100 248 40 L266 40 Q272 128 306 148 L306 420 L94 420 L94 148 Q128 128 134 40 Z",
+  tshirt: "M160 65 L130 90 L125 180 L115 410 L285 410 L275 180 L270 90 L240 65 Z",
+  longsleeve: "M160 65 L130 90 L125 180 L115 410 L285 410 L275 180 L270 90 L240 65 Z",
+  polo: "M160 65 L130 90 L125 180 L115 410 L285 410 L275 180 L270 90 L240 65 Z",
+  crewneck: "M160 65 L130 90 L125 180 L115 400 L285 400 L275 180 L270 90 L240 65 Z",
+  hoodie: "M160 65 L130 90 L125 180 L115 400 L285 400 L275 180 L270 90 L240 65 Z",
+  jacket: "M160 65 L130 90 L125 180 L115 400 L285 400 L275 180 L270 90 L240 65 Z",
+  babylook: "M160 65 L130 90 L125 170 Q140 250 115 400 L285 400 Q260 250 275 170 L270 90 L240 65 Z",
+  tank: "M170 40 Q200 60 230 40 L250 40 Q240 140 280 410 L120 410 Q160 140 150 40 Z",
   apron: "M152 50 L248 50 L254 150 Q326 158 318 420 L82 420 Q74 158 146 150 Z",
-  shorts: "M92 70 L308 70 L330 300 L214 312 L200 160 L186 312 L70 300 Z",
-  pants: "M112 40 L288 40 L302 405 L216 405 L200 140 L184 405 L98 405 Z",
+  shorts: "M120 70 L280 70 L300 300 L210 300 L200 150 L190 300 L100 300 Z",
+  pants: "M120 40 L280 40 L300 400 L210 400 L200 150 L190 400 L100 400 Z",
 };
-const SHORT_L = "M145 50 L62 88 L34 164 L100 186 L100 76 Z";
-const SHORT_R = "M255 50 L338 88 L366 164 L300 186 L300 76 Z";
-const CAP_L = "M150 56 L80 90 L62 150 L112 166 L112 78 Z";
-const CAP_R = "M250 56 L320 90 L338 150 L288 166 L288 78 Z";
-const LONG_L = "M145 50 L70 86 L26 336 L72 346 L100 176 L100 76 Z";
-const LONG_R = "M255 50 L330 86 L374 336 L328 346 L300 176 L300 76 Z";
-const CUFF_L = "M26 336 L72 346 L67 372 L21 362 Z";
-const CUFF_R = "M374 336 L328 346 L333 372 L379 362 Z";
+
+const SHORT_L = "M130 90 L50 170 L75 200 L125 180 Z";
+const SHORT_R = "M270 90 L350 170 L325 200 L275 180 Z";
+const CAP_L = "M130 90 L80 130 L95 150 L125 140 Z";
+const CAP_R = "M270 90 L320 130 L305 150 L275 140 Z";
+const LONG_L = "M130 90 L30 110 L45 350 L85 340 L125 180 Z";
+const LONG_R = "M270 90 L370 110 L355 350 L315 340 L275 180 Z";
+const CUFF_L = "M45 350 L85 340 L80 370 L40 380 Z";
+const CUFF_R = "M355 350 L315 340 L320 370 L360 380 Z";
 
 function GarmentSvg({ shape, body, sleeve, collar, view = "front", className }: Props) {
   const s = sleeve ?? body;
@@ -78,13 +79,13 @@ function GarmentSvg({ shape, body, sleeve, collar, view = "front", className }: 
       )}
       {shape === "polo" && (<>
         {view === "front" ? (<>
-          <path d="M145 50 L200 82 L178 104 L132 66 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
-          <path d="M255 50 L200 82 L222 104 L268 66 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
-          <rect x="190" y="82" width="20" height="78" fill={body} stroke={stroke} strokeWidth="1.5" />
-          <circle cx="200" cy="105" r="3" fill={stroke} /><circle cx="200" cy="135" r="3" fill={stroke} />
-        </>) : <path d="M140 52 Q200 40 260 52 L258 68 Q200 58 142 68 Z" fill={c} stroke={stroke} strokeWidth="1.5" />}
-        <path d="M34 164 L100 186 L98 196 L31 174 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
-        <path d="M366 164 L300 186 L302 196 L369 174 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
+          {/* Peitilho e Botões */}
+          <rect x="185" y="65" width="30" height="90" fill={body} stroke={stroke} strokeWidth="1.5" />
+          <circle cx="200" cy="95" r="3.5" fill={stroke} /><circle cx="200" cy="125" r="3.5" fill={stroke} /><circle cx="200" cy="145" r="3.5" fill={stroke} />
+          {/* Gola formatada para copiar a foto real */}
+          <path d="M160 65 L130 115 L180 115 L200 65 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
+          <path d="M240 65 L270 115 L220 115 L200 65 Z" fill={c} stroke={stroke} strokeWidth="1.5" />
+        </>) : <path d="M160 65 Q200 45 240 65 L235 80 Q200 65 165 80 Z" fill={c} stroke={stroke} strokeWidth="1.5" />}
       </>)}
       {shape === "hoodie" && view === "front" && (<>
         <path d="M138 300 L262 300 L285 380 L115 380 Z" fill="none" stroke={stroke} strokeWidth="2.5" />
