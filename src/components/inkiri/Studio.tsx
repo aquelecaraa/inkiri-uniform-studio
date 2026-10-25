@@ -62,10 +62,13 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
   const [logistic, setLogistic] = useState<"urgente" | "nacional">("urgente");
   const [date, setDate] = useState("");
   const [open, setOpen] = useState(false);
+  const [fileError, setFileError] = useState("");
+  const [fileLoading, setFileLoading] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: string; mode: "move" | "resize"; sx: number; sy: number; ox: number; oy: number; ow: number } | null>(null);
 
-  useEffect(() => { setFabric(model.fabric); setPurpose(model.purpose); }, [model.id]);
+  useEffect(() => { setFabric(model.fabric); setPurpose(model.purpose); setPart("body"); }, [model.id]);
+  useEffect(() => { setTab("modelo"); }, [modelId]);
 
   const total = gridTotal(uni) + gridTotal(baby);
   const tier = getTier(total);
@@ -82,8 +85,21 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
 
   const onFile = (f?: File) => {
     if (!f) return;
+    setFileError("");
+    if (!["image/png", "image/svg+xml", "image/jpeg"].includes(f.type)) {
+      setFileError("Formato inválido. Envie PNG, SVG ou JPG.");
+      return;
+    }
+    setFileLoading(true);
     const r = new FileReader();
-    r.onload = () => add({ kind: "image", src: String(r.result) });
+    r.onerror = () => { setFileLoading(false); setFileError("Não foi possível ler a imagem. Tente outro arquivo."); };
+    r.onload = () => {
+      const src = String(r.result);
+      const image = new Image();
+      image.onload = () => { add({ kind: "image", src }); setFileLoading(false); };
+      image.onerror = () => { setFileLoading(false); setFileError("Imagem inválida. Tente outro arquivo."); };
+      image.src = src;
+    };
     r.readAsDataURL(f);
   };
 
@@ -193,8 +209,8 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               {tab === "modelo" && (
                 <div className="grid grid-cols-2 gap-3">
                   {models.map((m) => (
-                    <Button variant="ghost" key={m.id} onClick={() => setModelId(m.id)} className={`rounded-lg border p-3 text-left ${CHOICE} ${m.id === model.id ? "border-primary bg-primary/10" : "border-border hover:bg-accent"}`}>
-                      <div className="bg-stage rounded-lg aspect-square mb-2"><Garment shape={m.shape} body={body} sleeve={sleeve} collar={collar} className="h-full w-full p-2" /></div>
+                    <Button variant="ghost" key={m.id} aria-pressed={m.id === model.id} onClick={() => setModelId(m.id)} className={`flex-col items-stretch justify-start rounded-lg border p-3 text-left ${CHOICE} ${m.id === model.id ? "border-primary bg-primary/10" : "border-border hover:bg-accent"}`}>
+                      <div className="bg-stage rounded-lg aspect-square w-full mb-2"><Garment shape={m.shape} body={body} sleeve={sleeve} collar={collar} className="h-full w-full p-2" /></div>
                       <span className="text-sm font-semibold leading-tight block">{m.name}</span>
                     </Button>
                   ))}
@@ -223,12 +239,13 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
 
               {tab === "arte" && (<>
                 <label className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-primary/60 bg-muted/50 p-5 cursor-pointer font-semibold transition-all duration-300 ease-out hover:scale-[1.02] hover:border-primary hover:bg-primary/10 hover:shadow-lg hover:brightness-110">
-                  <Upload className="h-5 w-5 text-primary" /> Enviar logo / estampa (PNG, SVG, JPG)
-                  <input type="file" accept="image/png,image/svg+xml,image/jpeg" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
+                  <Upload className="h-5 w-5 text-primary" /> {fileLoading ? "Carregando imagem…" : "Enviar logo / estampa (PNG, SVG, JPG)"}
+                  <input aria-label="Enviar logo" disabled={fileLoading} type="file" accept="image/png,image/svg+xml,image/jpeg" className="sr-only" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
                 </label>
+                {fileError && <p role="alert" className="text-sm text-destructive">{fileError}</p>}
                 <div className="flex gap-2">
                   <input aria-label="Texto da personalização" value={text} onChange={(e) => setText(e.target.value)} placeholder="Nome, cargo, frase ou número" className="min-w-0 flex-1 rounded-lg bg-muted/50 border border-border outline-none transition-all duration-300 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 px-3 py-2 text-sm" />
-                  <Button variant="ghost" onClick={() => { if (text.trim()) { add({ kind: "text", text, font, color: textColor }); setText(""); } }} className={`rounded-lg bg-primary text-primary-foreground px-3 font-semibold flex items-center gap-1 ${PRESS_PRIMARY}`}><Type className="h-4 w-4" />Inserir</Button>
+                  <Button disabled={!text.trim()} onClick={() => { if (text.trim()) { add({ kind: "text", text, font, color: textColor }); setText(""); } }} className={`rounded-lg px-3 font-semibold flex items-center gap-1 ${PRESS_PRIMARY}`}><Type className="h-4 w-4" />Inserir</Button>
                 </div>
                 <div className="flex gap-2 flex-wrap items-center">
                   <select aria-label="Fonte do texto" value={font} onChange={(e) => { setFont(e.target.value); if (selected?.kind === "text") update(selected.id, { font: e.target.value }); }} className="rounded-lg bg-muted/50 border border-border outline-none transition-all duration-300 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 px-2 py-2 text-sm">
@@ -260,19 +277,19 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">Tecido recomendado</p>
                 <div className="space-y-2">
                   {(Object.keys(FABRICS) as FabricId[]).map((f) => (
-                    <Button variant="ghost" key={f} onClick={() => setFabric(f)} className={`w-full text-left rounded-lg border p-3 ${CHOICE} ${fabric === f ? "border-primary bg-primary/10" : "border-border hover:bg-accent"}`}>
-                      <div className="flex items-center justify-between font-semibold text-sm">{FABRICS[f].name}{f === model.fabric && <span className="text-[10px] uppercase bg-primary text-primary-foreground rounded px-1.5 py-0.5">Recomendado</span>}</div>
+                    <Button variant="ghost" key={f} onClick={() => setFabric(f)} className={`flex-col items-stretch w-full text-left rounded-lg border p-3 ${CHOICE} ${fabric === f ? "border-primary bg-primary/10" : "border-border hover:bg-accent"}`}>
+                      <div className="flex flex-wrap gap-2 items-center justify-between font-semibold text-sm">{FABRICS[f].name}{f === model.fabric && <span className="text-[10px] uppercase bg-primary text-primary-foreground rounded px-1.5 py-0.5">Recomendado</span>}</div>
                       <p className="text-xs text-muted-foreground mt-1">{FABRICS[f].tip}</p>
                     </Button>
                   ))}
                 </div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground pt-2">Técnica in-house</p>
                 <div className="grid sm:grid-cols-2 gap-2">
-                  <Button variant="ghost" onClick={() => setTech("dtf")} className={`rounded-lg border p-3 text-left ${CHOICE} ${tech === "dtf" ? "border-primary bg-primary/10" : "border-border"}`}>
+                  <Button variant="ghost" onClick={() => setTech("dtf")} className={`flex-col items-start rounded-lg border p-3 text-left ${CHOICE} ${tech === "dtf" ? "border-primary bg-primary/10" : "border-border"}`}>
                     <b className="text-sm">Impressão DTF Digital</b>
                     <p className="text-xs text-muted-foreground mt-1">Sem limite de cores, permite degradês/fotos, zero custo de tela e alta durabilidade em qualquer tecido (inclusive Corta-Vento e Dry-Fit).</p>
                   </Button>
-                  <Button variant="ghost" onClick={() => setTech("bordado")} className={`rounded-lg border p-3 text-left ${CHOICE} ${tech === "bordado" ? "border-primary bg-primary/10" : "border-border"}`}>
+                  <Button variant="ghost" onClick={() => setTech("bordado")} className={`flex-col items-start rounded-lg border p-3 text-left ${CHOICE} ${tech === "bordado" ? "border-primary bg-primary/10" : "border-border"}`}>
                     <b className="text-sm">Bordado Computadorizado Industrial</b>
                     <p className="text-xs text-muted-foreground mt-1">Ideal para Polos, Moletons e Corta-Vento — máxima sofisticação e durabilidade.</p>
                   </Button>
@@ -357,14 +374,15 @@ function LeadModal({ open, onOpenChange, onSubmit }: { open: boolean; onOpenChan
       <DialogContent className="bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-2xl uppercase">Sua ficha técnica está pronta</DialogTitle>
-          <DialogDescription>Só faltam 3 dados para enviarmos ao comercial.</DialogDescription>
+          <DialogDescription>O resumo será aberto no WhatsApp. Envie o arquivo original da arte na conversa.</DialogDescription>
         </DialogHeader>
         <form className="space-y-3" onSubmit={(ev) => { ev.preventDefault(); if (valid) onSubmit(n.trim(), e.trim(), w.trim()); }}>
           {([["Seu nome", n, setN, "text"], ["Nome da Empresa ou Evento", e, setE, "text"], ["WhatsApp (com DDD)", w, setW, "tel"]] as const).map(([l, v, s, t]) => (
             <label key={l} className="block text-sm font-semibold">{l}
-              <input required type={t} value={v} maxLength={80} onChange={(x) => s(x.target.value)} className="mt-1 w-full rounded-lg bg-muted/50 border border-border outline-none transition-all duration-300 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 px-3 py-2.5" />
+              <input required type={t} autoComplete={t === "tel" ? "tel" : l === "Seu nome" ? "name" : "organization"} value={v} maxLength={80} onChange={(x) => s(x.target.value)} className="mt-1 w-full rounded-lg bg-muted/50 border border-border outline-none transition-all duration-300 focus:border-primary/60 focus:ring-2 focus:ring-primary/30 px-3 py-2.5" />
             </label>
           ))}
+          {w && w.replace(/\D/g, "").length < 10 && <p role="status" className="text-xs text-destructive">Informe o telefone com DDD, com pelo menos 10 dígitos.</p>}
           <Button variant="ghost" disabled={!valid} className={`w-full flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground py-3.5 font-bold disabled:opacity-40 disabled:cursor-not-allowed ${PRESS_PRIMARY}`}>
             <MessageCircle className="h-5 w-5" />Enviar para o WhatsApp
           </Button>

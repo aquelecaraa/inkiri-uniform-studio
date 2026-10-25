@@ -106,7 +106,7 @@ export function Catalog({ onSimulate }: { onSimulate: (id: string) => void }) {
                   <h3 className="text-xl font-bold uppercase leading-tight">{m.name}</h3>
                   <p className="text-xs text-primary font-semibold mt-1">{FABRICS[m.fabric].name}</p>
                   <p className="text-sm text-muted-foreground mt-2 flex-1">{c.spec}</p>
-                  <Button variant="ghost" onClick={() => onSimulate(c.id)} className={`mt-4 rounded-lg bg-primary text-primary-foreground py-2.5 text-sm font-bold ${PRESS_PRIMARY}`}>Simular Minha Logo Nesta Peça</Button>
+                  <Button onClick={() => onSimulate(c.id)} className={`mt-4 h-auto whitespace-normal rounded-lg py-2.5 text-sm font-bold ${PRESS_PRIMARY}`}>Simular nesta peça</Button>
                 </div>
               </article>
             );
@@ -259,14 +259,19 @@ export function Footer() {
 
 export function FloatingWhatsApp() {
   const [msg, setMsg] = useState("Olá, equipe Inkiri! Quero um orçamento de uniformes.");
+  const [inStudio, setInStudio] = useState(false);
   useEffect(() => {
     const nodes = document.querySelectorAll<HTMLElement>("[data-wa]");
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => { if (e.isIntersecting) setMsg(e.target.getAttribute("data-wa") ?? "Olá, equipe Inkiri!"); });
     }, { rootMargin: "-45% 0px -45% 0px" });
     nodes.forEach((n) => io.observe(n));
-    return () => io.disconnect();
+    const studioObserver = new IntersectionObserver(([entry]) => setInStudio(entry?.isIntersecting ?? false));
+    const studio = document.getElementById("simulador");
+    if (studio) studioObserver.observe(studio);
+    return () => { io.disconnect(); studioObserver.disconnect(); };
   }, []);
+  if (inStudio) return null;
   return (
     <a href={waLink(msg)} target="_blank" rel="noreferrer" aria-label="Falar no WhatsApp" title={msg}
       className={`fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-glow ${PRESS_PRIMARY}`}>

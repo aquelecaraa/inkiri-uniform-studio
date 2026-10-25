@@ -156,6 +156,10 @@
 #simulador { background: var(--card); }
 #simulador button { white-space: normal; height: auto; min-height: 40px; }
 #simulador button[title] { min-height: 0; }
+#simulador button[aria-label^="Texto "] { min-height: 28px; border-radius: 50%; }
+#simulador button[aria-label="Alternar frente e costas"] { flex-shrink: 0; }
+#simulador button.bg-primary:hover { background: var(--primary); color: var(--primary-foreground); }
+#simulador label:has(input[type="file"]):focus-within { outline: 2px solid var(--ring); outline-offset: 3px; }
 #simulador input, #medidas input { background: var(--card); }
 :where(a, button, input, select):focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
 @media (max-width: 1023px) {
