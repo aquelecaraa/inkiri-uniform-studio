@@ -3,18 +3,261 @@ import { CheckCircle2, Upload, Type, RotateCcw, Trash2, Zap, Truck, CalendarCloc
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Garment } from "./Garment";
 import {
-  PURPOSES, STUDIO_MODELS, MODELS, FABRICS, STOCK_COLORS, EXTRA_COLORS, SIZES, MIN_ORDER, TIERS,
-  type Purpose, type FabricId, type Grid, emptyGrid, gridTotal, getTier, isPriorityDate, isStockColor, colorName, waLink,
+  PURPOSES, STUDIO_MODELS, MODELS, FABRICS, STOCK_COLORS, EXTRA_COLORS, SIZES, MIN_ORDER, TIERS, MODEL_3D_BY_SHAPE,
+  type Shape, type Purpose, type FabricId, type Grid, emptyGrid, gridTotal, getTier, isPriorityDate, isStockColor, colorName, waLink,
 } from "@/lib/inkiri";
 
-type View = "front" | "back";
-type El = { id: string; kind: "image" | "text"; src?: string; text?: string; font?: string; color?: string; x: number; y: number; w: number; view: View; pos: string };
+type View = "front" | "side-right" | "side-left" | "back" | "3d";
+type TwoDView = "front" | "side-right" | "side-left" | "back";
+type El = { id: string; kind: "image" | "text"; src?: string; text?: string; font?: string; color?: string; x: number; y: number; w: number; view: TwoDView; pos: string };
 
-const QUICK: { label: string; view: View; x: number; y: number; w: number }[] = [
+declare module "react" {
+  namespace JSX {
+    interface IntrinsicElements {
+      "model-viewer": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & {
+          src?: string;
+          alt?: string;
+          "camera-controls"?: boolean;
+          "camera-orbit"?: string;
+          "auto-rotate"?: boolean;
+          "shadow-intensity"?: string;
+          "shadow-softness"?: string;
+          exposure?: string;
+          "touch-action"?: string;
+          ar?: boolean;
+        },
+        HTMLElement
+      >;
+    }
+  }
+}
+
+type ModelViewerTexture = unknown;
+
+type ModelViewerElement = HTMLElement & {
+  cameraOrbit?: string;
+  autoRotate?: boolean;
+  createTexture?: (uri: string) => Promise<ModelViewerTexture>;
+  model?: {
+    materials?: Array<{
+      pbrMetallicRoughness: {
+        setBaseColorFactor: (rgba: [number, number, number, number]) => void;
+        baseColorTexture?: {
+          setTexture: (tex: ModelViewerTexture | null) => void;
+        } | null;
+      };
+    }>;
+  };
+};
+
+const imageCache = new Map<string, Promise<HTMLImageElement>>();
+function loadCachedImage(src: string): Promise<HTMLImageElement> {
+  let p = imageCache.get(src);
+  if (!p) {
+    p = new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+    p.catch(() => imageCache.delete(src));
+    imageCache.set(src, p);
+  }
+  return p;
+}
+
+async function buildGarmentAtlasDataUrl(colorHex: string, els: El[]): Promise<string> {
+  const W = 4096;
+  const H = 1024;
+  const QUARTER = W / 4;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+
+  // Fill entire UV atlas (Front [0..1024], Back [1024..2048], Side Right [2048..3072], Side Left [3072..4096]) with solid fabric color
+  ctx.fillStyle = colorHex;
+  ctx.fillRect(0, 0, W, H);
+
+  for (const el of els) {
+    const offsetX =
+      el.view === "back"
+        ? QUARTER
+        : el.view === "side-right"
+          ? QUARTER * 2
+          : el.view === "side-left"
+            ? QUARTER * 3
+            : 0;
+    const cx = offsetX + (el.x / 100) * QUARTER;
+    const cy = (el.y / 100) * H;
+    const isSide = el.view === "side-right" || el.view === "side-left";
+    const scaleFactor = isSide ? 0.55 : 0.85;
+    const drawW = (el.w / 100) * QUARTER * scaleFactor;
+
+    if (el.kind === "image" && el.src) {
+      try {
+        const img = await loadCachedImage(el.src);
+        const aspect = img.naturalHeight / Math.max(1, img.naturalWidth);
+        const drawH = drawW * aspect;
+        ctx.drawImage(img, cx - drawW / 2, cy - drawH / 2, drawW, drawH);
+      } catch {
+        // ignore broken image
+      }
+    } else if (el.kind === "text" && el.text) {
+      ctx.save();
+      const fontSize = Math.max(24, Math.round(drawW * 0.28));
+      ctx.font = `bold ${fontSize}px ${el.font ?? "sans-serif"}`;
+      ctx.fillStyle = el.color ?? "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(el.text, cx, cy);
+      ctx.restore();
+    }
+  }
+
+  return canvas.toDataURL("image/png");
+}
+
+function Garment3D({
+  shape,
+  color,
+  els,
+  cameraSide,
+  onColorChange,
+  onUploadFile,
+}: {
+  shape: Shape;
+  color: string;
+  els: El[];
+  cameraSide: TwoDView;
+  onColorChange: (hex: string) => void;
+  onUploadFile: (f?: File) => void;
+}) {
+  const viewerRef = useRef<ModelViewerElement | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const modelSrc = `${import.meta.env.BASE_URL ?? "/"}${MODEL_3D_BY_SHAPE[shape]}`;
+
+  useEffect(() => {
+    setLoaded(false);
+    const el = viewerRef.current;
+    if (!el) return;
+    const onLoad = () => setLoaded(true);
+    if (el.model?.materials?.length) setLoaded(true);
+    el.addEventListener("load", onLoad);
+    return () => el.removeEventListener("load", onLoad);
+  }, [modelSrc]);
+
+  // Composite solid garment color + all uploaded PNG logos / text onto the 3D UV texture
+  useEffect(() => {
+    const el = viewerRef.current;
+    if (!el || !loaded) return;
+    let cancelled = false;
+
+    (async () => {
+      const materials = el.model?.materials;
+      if (!materials?.length) return;
+
+      const dataUrl = await buildGarmentAtlasDataUrl(color, els);
+      if (cancelled || !el.createTexture) return;
+      const tex = await el.createTexture(dataUrl);
+      if (cancelled) return;
+
+      for (const mat of materials) {
+        mat.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]);
+        mat.pbrMetallicRoughness.baseColorTexture?.setTexture(tex);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [color, els, loaded, modelSrc]);
+
+  // Swing camera to Front, Right Side, Left Side, or Back when user selects a view or logo placement
+  useEffect(() => {
+    const el = viewerRef.current;
+    if (!el || !loaded) return;
+    el.autoRotate = els.length === 0 && cameraSide === "front";
+    el.cameraOrbit =
+      cameraSide === "back"
+        ? "180deg 82deg 105%"
+        : cameraSide === "side-right"
+          ? "-90deg 82deg 105%"
+          : cameraSide === "side-left"
+            ? "90deg 82deg 105%"
+            : "0deg 82deg 105%";
+  }, [cameraSide, els.length, loaded, modelSrc]);
+
+  const quickSwatches = STOCK_COLORS.slice(0, 3);
+
+  return (
+    <div className="relative h-full w-full">
+      <model-viewer
+        key={modelSrc}
+        ref={viewerRef}
+        src={modelSrc}
+        alt="Visualização 3D da peça"
+        camera-controls
+        auto-rotate
+        shadow-intensity="1"
+        shadow-softness="0.85"
+        exposure="1.05"
+        touch-action="pan-y"
+        style={{ touchAction: "pan-y" }}
+        className="inkiri-model-viewer h-full w-full"
+      >
+        <div slot="poster" className="flex h-full w-full items-center justify-center">
+          <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+        </div>
+      </model-viewer>
+
+      <div
+        onPointerDown={(e) => e.stopPropagation()}
+        className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between gap-2"
+      >
+        <label className="inline-flex items-center gap-1.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-sky-400/50 text-sky-300 hover:bg-slate-900 px-3 py-1.5 text-xs font-bold shadow-lg cursor-pointer transition">
+          <Upload className="h-3.5 w-3.5 text-sky-400" />
+          + Logo PNG
+          <input
+            type="file"
+            accept="image/png,image/svg+xml,image/jpeg,image/webp"
+            className="hidden"
+            onChange={(e) => {
+              onUploadFile(e.target.files?.[0]);
+              e.target.value = "";
+            }}
+          />
+        </label>
+
+        <div className="flex items-center gap-2 rounded-full bg-slate-950/85 backdrop-blur-md border border-white/20 px-2.5 py-1.5 shadow-lg">
+          {quickSwatches.map((c) => (
+            <button
+              key={c.hex}
+              type="button"
+              title={c.name}
+              aria-label={`Cor ${c.name}`}
+              onClick={() => onColorChange(c.hex)}
+              className={`h-5 w-5 rounded-full border transition-transform cursor-pointer ${
+                color.toLowerCase() === c.hex.toLowerCase()
+                  ? "border-sky-300 scale-110 ring-2 ring-sky-400/50"
+                  : "border-white/30 hover:scale-105"
+              }`}
+              style={{ backgroundColor: c.hex }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const QUICK: { label: string; view: TwoDView; x: number; y: number; w: number }[] = [
   { label: "Peito Esquerdo", view: "front", x: 64, y: 30, w: 14 },
   { label: "Centro da Frente", view: "front", x: 50, y: 42, w: 36 },
-  { label: "Manga Esquerda", view: "front", x: 86, y: 28, w: 9 },
-  { label: "Manga Direita", view: "front", x: 14, y: 28, w: 9 },
+  { label: "Manga Direita", view: "side-right", x: 48, y: 31, w: 15 },
+  { label: "Manga Esquerda", view: "side-left", x: 52, y: 31, w: 15 },
   { label: "Costas Superior", view: "back", x: 50, y: 20, w: 32 },
   { label: "Costas Central", view: "back", x: 50, y: 45, w: 42 },
 ];
@@ -41,19 +284,29 @@ const TABS = [
   { id: "entrega", label: "Entrega", icon: Truck },
 ] as const;
 
-export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (id: string) => void }) {
+export function Studio({
+  modelId,
+  setModelId,
+  externalColor,
+}: {
+  modelId: string;
+  setModelId: (id: string) => void;
+  externalColor?: string | null;
+}) {
   const model = (MODELS.find((m) => m.id === modelId) ?? STUDIO_MODELS[0])!;
   const [purpose, setPurpose] = useState<Purpose>(model.purpose);
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("modelo");
-  const [body, setBody] = useState("#1f2a44");
-  const [sleeve, setSleeve] = useState("#1f2a44");
-  const [collar, setCollar] = useState("#ffffff");
-  const [part, setPart] = useState<"body" | "sleeve" | "collar">("body");
-  const [view, setView] = useState<View>("front");
+  const [color, setColor] = useState("#1f2a44");
+  const [view, setViewState] = useState<View>("3d");
+  const [last2dView, setLast2dView] = useState<TwoDView>("front");
+  const setView = (v: View) => {
+    if (v !== "3d") setLast2dView(v);
+    setViewState(v);
+  };
   const [els, setEls] = useState<El[]>([]);
   const [sel, setSel] = useState<string | null>(null);
   const [text, setText] = useState("");
-  const [font, setFont] = useState(FONTS[0].css);
+  const [font, setFont] = useState(FONTS[0]!.css);
   const [textColor, setTextColor] = useState("#ffffff");
   const [fabric, setFabric] = useState<FabricId>(model.fabric);
   const [tech, setTech] = useState<"dtf" | "bordado">("dtf");
@@ -65,13 +318,13 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
   const stage = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: string; mode: "move" | "resize"; sx: number; sy: number; ox: number; oy: number; ow: number } | null>(null);
 
-  useEffect(() => { setFabric(model.fabric); setPurpose(model.purpose); setPart("body"); }, [model.id]);
+  useEffect(() => { setFabric(model.fabric); setPurpose(model.purpose); }, [model.id]);
 
-  // Mantém a manga sincronizada com o corpo para evitar cortes retos nas máscaras
-  const handleSetBody = (hex: string) => {
-    setBody(hex);
-    setSleeve(hex);
-  };
+  useEffect(() => {
+    if (externalColor) {
+      setColor(externalColor);
+    }
+  }, [externalColor]);
 
   const total = gridTotal(uni) + gridTotal(baby);
   const tier = getTier(total);
@@ -79,10 +332,12 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
   const selected = els.find((e) => e.id === sel);
 
   const add = (e: Omit<El, "id" | "x" | "y" | "w" | "view" | "pos">) => {
-    const q = (QUICK.find((q) => q.view === view) ?? QUICK[0])!;
+    const activeView: TwoDView = view === "3d" ? last2dView : view;
+    const q = (QUICK.find((q) => q.view === activeView) ?? QUICK[0])!;
     const id = crypto.randomUUID();
-    setEls((p) => [...p, { ...e, id, x: q.x, y: q.y, w: e.kind === "text" ? 34 : q.w, view, pos: q.label }]);
+    setEls((p) => [...p, { ...e, id, x: q.x, y: q.y, w: e.kind === "text" ? 34 : q.w, view: activeView, pos: q.label }]);
     setSel(id);
+    setTab("arte");
   };
   const update = (id: string, patch: Partial<El>) => setEls((p) => p.map((e) => (e.id === id ? { ...e, ...patch } : e)));
 
@@ -108,16 +363,16 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
     else update(d.id, { w: Math.min(80, Math.max(5, d.ow + dx * 2)) });
   };
 
-  const positions = Array.from(new Set(els.map((e) => `${e.pos} (${e.view === "front" ? "Frente" : "Costas"}${e.kind === "text" ? `, texto "${e.text}"` : ", logo"})`)));
+  const positions = Array.from(new Set(els.map((e) => `${e.pos} (${e.view === "front" ? "Frente" : e.view === "side-right" ? "Lado Direito" : e.view === "side-left" ? "Lado Esquerdo" : "Costas"}${e.kind === "text" ? `, texto "${e.text}"` : ", logo"})`)));
   const gridStr = (g: Grid) => SIZES.filter((s) => g[s] > 0).map((s) => `${s}:${g[s]}`).join(" ") || "—";
 
   const buildMsg = (nome: string, empresa: string, whats: string) => {
     const purposeLabel = PURPOSES.find((p) => p.id === purpose)?.label;
-    const cores = `Corpo ${colorName(body)}${model.hasCollar ? ` / Gola-Punhos ${colorName(collar)}` : ""}`;
+    const cores = `Cor: ${colorName(color)}`;
     return `Olá, equipe Inkiri! Fiz uma simulação no site:
 - Cliente/Empresa: ${nome} — ${empresa} (WhatsApp: ${whats})
 - Propósito: ${purposeLabel}
-- Modelo e Cores: ${model.name} | ${cores}
+- Modelo e Cor: ${model.name} | ${cores}
 - Tecido e Técnica: ${FABRICS[fabric].name} + ${tech === "dtf" ? "Impressão DTF Digital" : "Bordado Computadorizado"}
 - Posição das Logos/Textos: ${positions.join(" + ") || "A definir"}
 - Quantidade Total: ${total} peças${tier ? ` (${tier.label})` : ""} | Grade: Tradicional/Unissex [${gridStr(uni)}] · Baby Look [${gridStr(baby)}]
@@ -126,86 +381,214 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
 
   const models = STUDIO_MODELS.filter((m) => m.purpose === purpose);
   const swatches = [...STOCK_COLORS, ...EXTRA_COLORS];
-  const current = part === "body" ? body : collar;
-  const setCurrent = part === "body" ? handleSetBody : setCollar;
 
   return (
-    <section id="simulador" data-wa="Fiz uma simulação e quero fechar meu pedido de uniformes" className="relative py-16 md:py-24 border-t border-white/15 scroll-mt-24 overflow-hidden">
+    <section
+      id="simulador"
+      data-wa="Fiz uma simulação e quero fechar meu pedido de uniformes"
+      className="relative flex flex-col lg:flex-row w-full min-h-screen border-t border-white/15 scroll-mt-24 bg-background"
+    >
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-primary/25 blur-[130px] animate-halo" />
         <div className="absolute top-1/2 -right-32 h-[30rem] w-[30rem] rounded-full bg-sky-500/20 blur-[140px] animate-halo" />
       </div>
-      <div className={`relative mx-auto max-w-7xl px-4 ${ENTER}`}>
-        <div className="text-center mb-8">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-primary/15 px-3.5 py-1 text-sky-300 font-bold uppercase tracking-widest text-xs">
-            <Sparkles className="h-3.5 w-3.5" /> Estúdio Inkiri Express
-          </span>
-          <h2 className="text-4xl md:text-6xl font-extrabold uppercase mt-3">Monte seu uniforme em tempo real</h2>
-        </div>
 
-        <div className="flex gap-2.5 overflow-x-auto pb-2 justify-start md:justify-center mb-8">
-          {PURPOSES.map((p) => (
-            <button key={p.id} onClick={() => { setPurpose(p.id); const first = STUDIO_MODELS.find((m) => m.purpose === p.id); if (first) setModelId(first.id); }}
-              className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold border ${PRESS} ${purpose === p.id ? "bg-primary text-primary-foreground border-primary shadow-sm" : "border-white/15 bg-card/70 backdrop-blur-md hover:border-primary/50 hover:bg-accent"}`}>
-              {p.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-6 items-start">
-          {/* Stage */}
-          <div className="sticky top-[92px] sm:top-[96px] md:top-[104px] z-20">
-            <div className={`glow-card rounded-2xl ${GLASS} p-3.5 shadow-2xl shadow-black/50`}>
-              <div ref={stage} onPointerMove={onMove} onPointerUp={() => (drag.current = null)} onPointerDown={() => setSel(null)}
-                className="@container relative mx-auto aspect-[400/440] max-h-[42vh] lg:max-h-none w-full rounded-xl bg-stage ring-2 ring-primary/30 overflow-hidden touch-none select-none shadow-inner">
-                <Garment key={`${model.shape}-${view}`} shape={model.shape} body={body} sleeve={sleeve} collar={collar} view={view} className="absolute inset-0 h-full w-full p-4 animate-in fade-in zoom-in-95 duration-300" />
-                {els.filter((e) => e.view === view).map((e) => (
-                  <div key={e.id} onPointerDown={(ev) => onDown(ev, e, "move")}
-                    className={`absolute cursor-move -translate-x-1/2 -translate-y-1/2 transition-transform ${sel === e.id ? "outline-2 outline-dashed outline-primary scale-[1.02]" : ""}`}
-                    style={{ left: `${Math.max(10, Math.min(90, e.x))}%`, top: `${Math.max(10, Math.min(90, e.y))}%`, width: `${e.w}%` }}>
-                    {e.kind === "image" ? (
-                      <img src={e.src} alt="Logo" draggable={false} className="w-full h-auto pointer-events-none mix-blend-multiply opacity-90 drop-shadow-sm" />
-                    ) : (
-                      <svg viewBox="0 0 100 100" className="w-full h-auto pointer-events-none mix-blend-multiply opacity-90 drop-shadow-sm overflow-visible">
-                        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill={e.color} fontFamily={e.font} fontSize="35" fontWeight="bold">
-                          {e.text}
-                        </text>
-                      </svg>
-                    )}
-                    {sel === e.id && <span onPointerDown={(ev) => onDown(ev, e, "resize")} className="absolute -right-2 -bottom-2 h-5 w-5 rounded-full bg-primary border-2 border-white shadow-md cursor-se-resize" />}
-                  </div>
-                ))}
-                <span className="absolute left-3 top-3 rounded-md bg-slate-950/85 backdrop-blur-md border border-white/20 text-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">{view === "front" ? "Frente" : "Costas"}</span>
-              </div>
-              <div className="mt-3 flex items-center justify-between gap-2">
-                <div className="flex rounded-lg border border-white/15 overflow-hidden">
-                  {(["front", "back"] as View[]).map((v) => (
-                    <button key={v} onClick={() => setView(v)} className={`px-4 py-2 text-sm font-bold transition-all duration-300 ease-out cursor-pointer ${view === v ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>
-                      {v === "front" ? "Frente" : "Costas"}
-                    </button>
+      {/* Área do Garment3D (Topo no mobile com rolagem liberada, lateral sticky no desktop) */}
+      <div className="w-full h-[50vh] lg:h-screen lg:w-1/2 lg:sticky lg:top-0 flex flex-col p-2 sm:p-4 lg:p-6 z-10">
+        <div className={`glow-card rounded-2xl ${GLASS} p-2.5 sm:p-3.5 shadow-2xl shadow-black/50 flex flex-col h-full w-full overflow-hidden`}>
+          <div
+            ref={stage}
+            onPointerMove={onMove}
+            onPointerUp={() => (drag.current = null)}
+            onPointerDown={() => setSel(null)}
+            className="@container relative flex-1 w-full rounded-xl bg-stage ring-1 ring-primary/30 overflow-hidden select-none shadow-inner touch-pan-y"
+            style={{ touchAction: "pan-y" }}
+          >
+            {view === "3d" ? (
+              <Garment3D
+                shape={model.shape}
+                color={color}
+                els={els}
+                cameraSide={selected?.view ?? last2dView}
+                onColorChange={setColor}
+                onUploadFile={onFile}
+              />
+            ) : (
+              <>
+                <Garment
+                  key={`${model.shape}-${view}`}
+                  shape={model.shape}
+                  color={color}
+                  view={view}
+                  className="absolute inset-0 h-full w-full p-4 animate-in fade-in zoom-in-95 duration-300"
+                />
+                {els
+                  .filter((e) => e.view === view)
+                  .map((e) => (
+                    <div
+                      key={e.id}
+                      onPointerDown={(ev) => onDown(ev, e, "move")}
+                      className={`absolute cursor-move -translate-x-1/2 -translate-y-1/2 transition-transform ${
+                        sel === e.id ? "outline-2 outline-dashed outline-primary scale-[1.02]" : ""
+                      }`}
+                      style={{
+                        left: `${Math.max(10, Math.min(90, e.x))}%`,
+                        top: `${Math.max(10, Math.min(90, e.y))}%`,
+                        width: `${e.w}%`,
+                      }}
+                    >
+                      {e.kind === "image" ? (
+                        <img
+                          src={e.src}
+                          alt="Logo"
+                          draggable={false}
+                          className="w-full h-auto pointer-events-none mix-blend-multiply opacity-90 drop-shadow-sm"
+                        />
+                      ) : (
+                        <svg
+                          viewBox="0 0 100 100"
+                          className="w-full h-auto pointer-events-none mix-blend-multiply opacity-90 drop-shadow-sm overflow-visible"
+                        >
+                          <text
+                            x="50%"
+                            y="50%"
+                            dominantBaseline="middle"
+                            textAnchor="middle"
+                            fill={e.color}
+                            fontFamily={e.font}
+                            fontSize="35"
+                            fontWeight="bold"
+                          >
+                            {e.text}
+                          </text>
+                        </svg>
+                      )}
+                      {sel === e.id && (
+                        <span
+                          onPointerDown={(ev) => onDown(ev, e, "resize")}
+                          className="absolute -right-2 -bottom-2 h-5 w-5 rounded-full bg-primary border-2 border-white shadow-md cursor-se-resize"
+                        />
+                      )}
+                    </div>
                   ))}
-                </div>
-                <p className="text-xs font-semibold text-sky-300 truncate">{model.name}</p>
-                <button onClick={() => setView(view === "front" ? "back" : "front")} className={`p-2 rounded-lg border border-white/15 hover:bg-accent ${PRESS}`} aria-label="Girar"><RotateCcw className="h-4 w-4 text-sky-400" /></button>
-              </div>
-            </div>
+              </>
+            )}
+            <span className="pointer-events-none absolute left-3 top-3 rounded-md bg-slate-950/85 backdrop-blur-md border border-white/20 text-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider">
+              {view === "front"
+                ? "Frente"
+                : view === "side-right"
+                  ? "Lado Direito"
+                  : view === "side-left"
+                    ? "Lado Esquerdo"
+                    : view === "back"
+                      ? "Costas"
+                      : "3D 360°"}
+            </span>
           </div>
 
-          {/* Panel */}
-          <div className={`glow-card rounded-2xl ${GLASS} shadow-2xl shadow-black/50`}>
-            <div className="grid grid-cols-6 border-b border-white/15">
-              {TABS.map((t) => (
-                <button key={t.id} onClick={() => setTab(t.id)} className={`cursor-pointer flex flex-col items-center gap-1 py-3.5 text-[11px] sm:text-xs font-bold border-b-2 transition-all duration-300 ease-out ${tab === t.id ? "border-sky-400 text-sky-300 bg-primary/15" : "border-transparent text-muted-foreground hover:text-foreground hover:bg-white/5"}`}>
-                  <t.icon className="h-5 w-5" />{t.label}
+          <div className="mt-2.5 flex items-center justify-between gap-2 shrink-0">
+            <div className="flex rounded-lg border border-white/15 overflow-hidden">
+              {(["front", "side-right", "side-left", "back", "3d"] as View[]).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-bold transition-all duration-300 ease-out cursor-pointer whitespace-nowrap ${
+                    view === v ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                  }`}
+                >
+                  {v === "front"
+                    ? "Frente"
+                    : v === "side-right"
+                      ? "Lado D"
+                      : v === "side-left"
+                        ? "Lado E"
+                        : v === "back"
+                          ? "Costas"
+                          : "3D"}
                 </button>
               ))}
             </div>
+            <p className="text-xs font-semibold text-sky-300 truncate max-w-[120px] sm:max-w-none">
+              {model.name}
+            </p>
+            <button
+              onClick={() =>
+                setView(
+                  view === "front"
+                    ? "side-right"
+                    : view === "side-right"
+                      ? "side-left"
+                      : view === "side-left"
+                        ? "back"
+                        : view === "back"
+                          ? "3d"
+                          : "front"
+                )
+              }
+              className={`p-2 rounded-lg border border-white/15 hover:bg-accent ${PRESS}`}
+              aria-label="Girar"
+            >
+              <RotateCcw className="h-4 w-4 text-sky-400" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Painel de Opções e Abas (Metade inferior no mobile com rolagem nativa / Lateral no desktop) */}
+      <div className="w-full flex-1 lg:w-1/2 overflow-y-auto pb-20 lg:p-8 p-4 sm:p-6 flex flex-col gap-6 z-10">
+        <div className="space-y-3">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-primary/15 px-3.5 py-1 text-sky-300 font-bold uppercase tracking-widest text-xs">
+            <Sparkles className="h-3.5 w-3.5" /> Estúdio Inkiri Express
+          </span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold uppercase tracking-tight">
+            Monte seu uniforme em tempo real
+          </h2>
+
+          <div className="flex gap-2 overflow-x-auto pb-1 pt-1 scrollbar-none">
+            {PURPOSES.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => {
+                  setPurpose(p.id);
+                  const first = STUDIO_MODELS.find((m) => m.purpose === p.id);
+                  if (first) setModelId(first.id);
+                }}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-xs sm:text-sm font-bold border transition ${PRESS} ${
+                  purpose === p.id
+                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                    : "border-white/15 bg-card/70 backdrop-blur-md hover:border-primary/50 hover:bg-accent"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Card de Configuração e Abas */}
+        <div className={`glow-card rounded-2xl ${GLASS} shadow-2xl shadow-black/50 flex flex-col`}>
+          <div className="grid grid-cols-6 border-b border-white/15">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`cursor-pointer flex flex-col items-center gap-1 py-3.5 text-[10px] sm:text-xs font-bold border-b-2 transition-all duration-300 ease-out ${
+                  tab === t.id
+                    ? "border-sky-400 text-sky-300 bg-primary/15"
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-white/5"
+                }`}
+              >
+                <t.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="truncate max-w-[48px] sm:max-w-none">{t.label}</span>
+              </button>
+            ))}
+          </div>
             <div className="p-5 min-h-[340px] space-y-4">
               {tab === "modelo" && (
                 <div className="grid grid-cols-2 gap-3">
                   {models.map((m) => (
                     <button key={m.id} onClick={() => setModelId(m.id)} className={`rounded-xl border p-3 text-left ${CHOICE} ${m.id === model.id ? "border-sky-400 bg-primary/15 shadow-sm shadow-primary/10" : "border-white/15 hover:bg-accent"}`}>
-                      <div className="bg-stage rounded-lg aspect-square mb-2"><Garment shape={m.shape} body={body} sleeve={sleeve} collar={collar} className="h-full w-full p-2" /></div>
+                      <div className="bg-stage rounded-lg aspect-square mb-2"><Garment shape={m.shape} color={color} className="h-full w-full p-2" /></div>
                       <span className="text-sm font-bold leading-tight block">{m.name}</span>
                     </button>
                   ))}
@@ -213,19 +596,14 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
               )}
 
               {tab === "cores" && (<>
-                <div className="flex gap-2 flex-wrap">
-                  {([["body", "Corpo"], ...(model.hasCollar || ["apron", "shorts", "pants"].includes(model.shape) ? [["collar", model.shape === "apron" ? "Alças" : ["shorts", "pants"].includes(model.shape) ? "Cós/Punhos" : "Gola & Punhos"]] : [])] as [typeof part, string][]).map(([k, l]) => (
-                    <button key={k} onClick={() => setPart(k)} className={`rounded-lg px-4 py-2 text-sm font-bold border ${PRESS} ${part === k ? "bg-primary text-primary-foreground border-primary shadow-sm" : "border-white/15 bg-white/5"}`}>{l}</button>
-                  ))}
-                </div>
                 <div className="grid grid-cols-6 gap-3">
                   {swatches.map((c) => (
-                    <button key={c.hex} title={c.name} onClick={() => setCurrent(c.hex)}
-                      className={`aspect-square rounded-full border-2 ${PRESS} ${current === c.hex ? "border-sky-300 scale-105 ring-2 ring-sky-400/30" : "border-white/25"}`} style={{ background: c.hex }} />
+                    <button key={c.hex} title={c.name} onClick={() => setColor(c.hex)}
+                      className={`aspect-square rounded-full border-2 ${PRESS} ${color === c.hex ? "border-sky-300 scale-105 ring-2 ring-sky-400/30" : "border-white/25"}`} style={{ background: c.hex }} />
                   ))}
                 </div>
-                <p className="text-sm">Selecionada: <b className="text-sky-300">{colorName(current)}</b></p>
-                {isStockColor(current) ? (
+                <p className="text-sm">Cor selecionada: <b className="text-sky-300">{colorName(color)}</b></p>
+                {isStockColor(color) ? (
                   <div className="flex items-center gap-2 rounded-lg border border-sky-400/30 bg-primary/20 backdrop-blur-md text-sky-300 px-3 py-2 text-sm font-bold"><CheckCircle2 className="h-4 w-4" />Cor disponível a pronta-entrega (Produção 24h)</div>
                 ) : (
                   <div className="flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/15 backdrop-blur-md text-warning px-3 py-2 text-sm font-bold"><AlertTriangle className="h-4 w-4" />Cor sob encomenda — prazo a confirmar</div>
@@ -251,19 +629,46 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
                 </div>
                 {selected ? (
                   <div className="rounded-xl border border-white/15 bg-white/5 backdrop-blur-md p-3 space-y-3">
-                    <p className="text-xs uppercase tracking-wider text-sky-300 font-bold">Posicionamento rápido</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs uppercase tracking-wider text-sky-300 font-bold">Posicionamento rápido</p>
+                      {els.length > 1 && (
+                        <div className="flex gap-1">
+                          {els.map((el, idx) => (
+                            <button
+                              key={el.id}
+                              onClick={() => setSel(el.id)}
+                              className={`rounded px-2 py-0.5 text-[11px] font-bold border ${
+                                sel === el.id
+                                  ? "border-sky-400 bg-primary/30 text-sky-200"
+                                  : "border-white/15 bg-white/5 text-muted-foreground hover:text-white"
+                              }`}
+                            >
+                              {el.kind === "text" ? `Texto ${idx + 1}` : `Logo ${idx + 1}`}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {QUICK.map((q) => (
-                        <button key={q.label} onClick={() => { update(selected.id, { x: q.x, y: q.y, w: selected.kind === "text" ? Math.max(q.w, 20) : q.w, view: q.view, pos: q.label }); setView(q.view); }}
+                        <button key={q.label} onClick={() => { update(selected.id, { x: q.x, y: q.y, w: selected.kind === "text" ? Math.max(q.w, 20) : q.w, view: q.view, pos: q.label }); if (view !== "3d") setView(q.view); }}
                           className={`rounded-lg border px-2 py-2 text-xs font-bold transition-all duration-300 ease-out hover:scale-105 ${selected.pos === q.label ? "border-sky-400 text-sky-300 bg-primary/20" : "border-white/15 hover:bg-accent"}`}>{q.label}</button>
                       ))}
                     </div>
-                    <label className="block text-xs text-muted-foreground">Tamanho
-                      <input type="range" min={5} max={80} value={selected.w} onChange={(e) => update(selected.id, { w: +e.target.value })} className="w-full accent-[var(--primary)]" />
-                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                      <label className="block text-xs text-muted-foreground">Tamanho ({Math.round(selected.w)}%)
+                        <input type="range" min={5} max={80} value={selected.w} onChange={(e) => update(selected.id, { w: +e.target.value })} className="w-full accent-[var(--primary)]" />
+                      </label>
+                      <label className="block text-xs text-muted-foreground">Horizontal ({Math.round(selected.x)}%)
+                        <input type="range" min={15} max={85} value={selected.x} onChange={(e) => update(selected.id, { x: +e.target.value, pos: "Personalizada" })} className="w-full accent-[var(--primary)]" />
+                      </label>
+                      <label className="block text-xs text-muted-foreground">Vertical ({Math.round(selected.y)}%)
+                        <input type="range" min={18} max={85} value={selected.y} onChange={(e) => update(selected.id, { y: +e.target.value, pos: "Personalizada" })} className="w-full accent-[var(--primary)]" />
+                      </label>
+                    </div>
                     <button onClick={() => { setEls((p) => p.filter((e) => e.id !== selected.id)); setSel(null); }} className="flex items-center gap-1 text-sm font-semibold text-destructive"><Trash2 className="h-4 w-4" />Remover elemento</button>
                   </div>
-                ) : <p className="text-sm text-muted-foreground">Arraste os elementos na peça. Toque em um elemento para ajustar tamanho e posição.</p>}
+                ) : <p className="text-sm text-muted-foreground">Envie uma logo PNG ou texto acima para aplicar diretamente na camiseta 3D e 2D.</p>}
                 {els.length > 0 && <p className="text-xs text-sky-300">{els.length} elemento(s): {positions.join(" · ")}</p>}
               </>)}
 
@@ -354,7 +759,6 @@ export function Studio({ modelId, setModelId }: { modelId: string; setModelId: (
             </div>
           </div>
         </div>
-      </div>
       <LeadModal open={open} onOpenChange={setOpen} onSubmit={(n, e, w) => { window.open(waLink(buildMsg(n, e, w)), "_blank"); setOpen(false); }} />
     </section>
   );

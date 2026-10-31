@@ -1,18 +1,19 @@
 # Fotos das peças (simulador)
 
-Cada peça usa 2 arquivos:
+Cada peça (frente e costas) tem 2 arquivos, gerados por `scripts/garments/build_assets.py`:
 
-- `{nome}.webp` — foto em tons de cinza (sombras e textura), fundo transparente.
-- `{nome}.regions.png` — mapa de regiões: canal **R** = mangas, canal **G** = gola/punhos; o resto é o corpo.
+- `{nome}.webp`    foto em tons de cinza (sombras e textura), **fundo transparente** (magenta removido).
+- `{nome}.map.png` mapa de regiões: canal **R** = parte editável (gola, punhos, barra, cós), canal **B** = linha de costura.
+                   O corpo/mangas é sempre uma cor só (o que sobra).
 
-O componente `src/components/inkiri/Garment.tsx` multiplica a cor escolhida por região sobre a foto.
+Peças: tshirt, polo, longsleeve, babylook, tank, crewneck (moletom careca), hoodie (canguru),
+jacket (corta-vento), pants (calça moletom), shorts (bermuda moletom), shortspoli, shortsuv.
 
-## Adicionar um modelo novo
-1. Foto da peça branca/cinza clara, fundo magenta puro, em `raw-photos/` (ex.: `hoodie-front.jpg`).
-2. `python3 scripts/garments/remove_magenta.py` → gera o `.webp` (e `.png`) sem fundo.
-3. Gerar o `.regions.png` (`scripts/garments/build_regions.py`). Os polígonos de gola/punho são
-   desenhados à mão (em % da imagem) para as fotos atuais; para uma peça nova, adicione os
-   polígonos ou, para tingir a peça inteira de uma cor só, use um `.regions.png` todo preto.
-4. Registrar o shape na tabela `PHOTOS` em `Garment.tsx`. Shapes sem foto continuam no SVG antigo.
-
-Requer: `pip install pillow numpy opencv-python`.
+## Gerar de novo / adicionar peça
+1. Fotos com fundo magenta puro em `raw-photos/`, nomeadas `{peça}-front.jpg` e `{peça}-back.jpg`.
+2. `pip install pillow numpy opencv-python`
+3. `GARMENT_SRC=./raw-photos python3 scripts/garments/build_assets.py`
+   (também atualiza `src/lib/garments.ts`, com tamanhos e pontos de posicionamento).
+4. Para peça nova com gola/punho/barra/cós, descreva a região no dicionário `TRIM` do script
+   (em % da imagem). Sem entrada em `TRIM` = peça de cor única.
+5. Registre o `shape` em `src/lib/inkiri.ts` (tipo `Shape`, `TRIM_LABEL` e o modelo).

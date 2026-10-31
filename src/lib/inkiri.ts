@@ -5,8 +5,22 @@ export const waLink = (msg: string) =>
   `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 
 export type Shape =
-  | "tshirt" | "longsleeve" | "polo" | "babylook" | "tank"
-  | "jacket" | "crewneck" | "hoodie" | "apron" | "shorts" | "pants";
+  | "tshirt" | "longsleeve" | "polo"
+  | "jacket" | "crewneck" | "hoodie"
+  | "shorts" | "shortspoli" | "shortsuv" | "pants";
+
+export const MODEL_3D_BY_SHAPE: Record<Shape, string> = {
+  polo: "models/polo.glb",
+  tshirt: "models/tshirt.glb",
+  longsleeve: "models/longsleeve.glb",
+  jacket: "models/jacket.glb",
+  crewneck: "models/crewneck.glb",
+  hoodie: "models/hoodie.glb",
+  shorts: "models/shorts.glb",
+  shortspoli: "models/shortspoli.glb",
+  shortsuv: "models/shorts.glb",
+  pants: "models/jogger.glb",
+};
 
 export type Purpose = "empresarial" | "eventos" | "inverno";
 
@@ -26,32 +40,28 @@ export const FABRICS: Record<FabricId, { name: string; tip: string }> = {
 
 export type Model = {
   id: string; name: string; shape: Shape; purpose: Purpose; fabric: FabricId;
-  hasCollar?: boolean; studio: boolean;
+  studio: boolean;
 };
 
 export const MODELS: Model[] = [
-  { id: "polo", name: "Camisa Gola Polo", shape: "polo", purpose: "empresarial", fabric: "piquet", hasCollar: true, studio: true },
+  { id: "polo", name: "Camisa Gola Polo", shape: "polo", purpose: "empresarial", fabric: "piquet", studio: true },
   { id: "tshirt", name: "T-Shirt Tradicional (Gola Redonda)", shape: "tshirt", purpose: "empresarial", fabric: "algodao", studio: true },
-  { id: "manga-longa", name: "T-Shirt Manga Longa (punho ribana)", shape: "longsleeve", purpose: "empresarial", fabric: "algodao", hasCollar: true, studio: true },
-  { id: "babylook", name: "Baby Look Feminina", shape: "babylook", purpose: "empresarial", fabric: "algodao", studio: true },
+  { id: "manga-longa", name: "T-Shirt Manga Longa (punho ribana)", shape: "longsleeve", purpose: "empresarial", fabric: "algodao", studio: true },
   { id: "poliamida", name: "Camiseta Poliamida / Dry-Fit", shape: "tshirt", purpose: "eventos", fabric: "dryfit", studio: true },
   { id: "uv-curta", name: "Camiseta UV50+ Manga Curta", shape: "tshirt", purpose: "eventos", fabric: "dryfit", studio: true },
-  { id: "uv-longa", name: "Camiseta UV50+ Manga Longa", shape: "longsleeve", purpose: "eventos", fabric: "dryfit", hasCollar: true, studio: true },
-  { id: "regata", name: "Regata / Abadá", shape: "tank", purpose: "eventos", fabric: "dryfit", studio: true },
-  { id: "corta-vento", name: "Jaqueta Corta-Vento Impermeável", shape: "jacket", purpose: "inverno", fabric: "inverno", hasCollar: true, studio: true },
-  { id: "moletom-careca", name: "Moletom Careca", shape: "crewneck", purpose: "inverno", fabric: "inverno", hasCollar: true, studio: true },
-  { id: "moletom-canguru", name: "Moletom Canguru (bolso e capuz)", shape: "hoodie", purpose: "inverno", fabric: "inverno", hasCollar: true, studio: true },
-  { id: "avental", name: "Avental Gastronômico", shape: "apron", purpose: "inverno", fabric: "algodao", studio: true },
+  { id: "uv-longa", name: "Camiseta UV50+ Manga Longa", shape: "longsleeve", purpose: "eventos", fabric: "dryfit", studio: true },
+  { id: "corta-vento", name: "Jaqueta Corta-Vento Impermeável", shape: "jacket", purpose: "inverno", fabric: "inverno", studio: true },
+  { id: "moletom-careca", name: "Moletom Careca", shape: "crewneck", purpose: "inverno", fabric: "inverno", studio: true },
+  { id: "moletom-canguru", name: "Moletom Canguru (bolso e capuz)", shape: "hoodie", purpose: "inverno", fabric: "inverno", studio: true },
   { id: "jogger", name: "Calça Jogger Moletom", shape: "pants", purpose: "inverno", fabric: "inverno", studio: true },
   { id: "bermuda-moletom", name: "Bermuda Moletom", shape: "shorts", purpose: "inverno", fabric: "inverno", studio: true },
-  { id: "bermuda-poliamida", name: "Bermuda Poliamida", shape: "shorts", purpose: "eventos", fabric: "dryfit", studio: true },
-  { id: "bermuda-uv", name: "Bermuda UV", shape: "shorts", purpose: "eventos", fabric: "dryfit", studio: true },
+  { id: "bermuda-poliamida", name: "Bermuda Poliamida", shape: "shortspoli", purpose: "eventos", fabric: "dryfit", studio: true },
+  { id: "bermuda-uv", name: "Bermuda UV", shape: "shortsuv", purpose: "eventos", fabric: "dryfit", studio: true },
 ];
 
-// Cada peça exibida no catálogo deve poder ser aberta diretamente no estúdio.
-export const STUDIO_MODELS = MODELS;
+export const STUDIO_MODELS = MODELS.filter((m) => m.studio);
 
-export type CatalogTab = "todos" | "corporativo" | "eventos" | "uv" | "inverno" | "bermudas" | "gastronomia";
+export type CatalogTab = "todos" | "corporativo" | "eventos" | "uv" | "inverno" | "bermudas";
 export const CATALOG_TABS: { id: CatalogTab; label: string }[] = [
   { id: "todos", label: "Todos" },
   { id: "corporativo", label: "Corporativo & Polos" },
@@ -59,7 +69,6 @@ export const CATALOG_TABS: { id: CatalogTab; label: string }[] = [
   { id: "uv", label: "Linha UV & Esportiva" },
   { id: "inverno", label: "Inverno (Corta-Vento & Moletom)" },
   { id: "bermudas", label: "Bermudas & Calças" },
-  { id: "gastronomia", label: "Gastronomia & Aventais" },
 ];
 
 export const CATALOG: { id: string; tab: CatalogTab[]; spec: string; color: string }[] = [
@@ -76,7 +85,6 @@ export const CATALOG: { id: string; tab: CatalogTab[]; spec: string; color: stri
   { id: "poliamida", tab: ["eventos", "uv"], spec: "Poliamida dry-fit, toque gelado", color: "#15803d" },
   { id: "uv-curta", tab: ["uv"], spec: "Dry-Fit UV50+, antiodor, manga curta", color: "#dc2626" },
   { id: "uv-longa", tab: ["uv"], spec: "Dry-Fit UV50+, manga longa com polegar", color: "#1d4ed8" },
-  { id: "avental", tab: ["gastronomia"], spec: "Brim leve, alças reguláveis e bolso frontal", color: "#111214" },
 ];
 
 export const STOCK_COLORS = [

@@ -1,0 +1,16 @@
+DirectoryIndex index.html
+
+<IfModule mod_mime.c>
+  AddType model/gltf-binary .glb
+  AddType model/gltf+json .gltf
+  AddType image/webp .webp
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

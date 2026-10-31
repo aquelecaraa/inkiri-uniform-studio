@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -7,8 +8,11 @@
 >
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
+
 <!-- LOVABLE:END -->
 
 - Keep customization and quote preparation client-side; WhatsApp receives the generated order brief, not uploaded files.
 - Garment previews share the existing photo renderer with a simplified fallback so asset failures never block quoting.
 - Define visual roles in global semantic tokens and reuse the shared Button for interface controls.
+
+Sempre que criar ou editar componentes de interface (.tsx), estruturas HTML ou manipular classes Tailwind, atue como um Diretor de Design Frontend de elite. O seu objetivo é produzir UI/UX de nível excecional, com código de produção impecável. Rejeite soluções visuais genéricas, seguras ou tímidas. Audite rigorosamente a hierarquia visual, espaçamentos, tipografia, estados de erro e comportamento responsivo no mobile antes de gerar o código final.
